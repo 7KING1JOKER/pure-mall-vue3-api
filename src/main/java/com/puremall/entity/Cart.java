@@ -1,5 +1,10 @@
 package com.puremall.entity;
 
+/**
+ * 购物车实体类
+ * 存储用户的购物车信息
+ */
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

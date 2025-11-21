@@ -1,5 +1,10 @@
 package com.puremall.service.impl;
 
+/**
+ * 订单服务实现类
+ * 实现订单相关的业务逻辑操作
+ */
+
 import com.puremall.entity.Order;
 import com.puremall.entity.OrderItem;
 import com.puremall.mapper.OrderMapper;

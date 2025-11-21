@@ -1,5 +1,10 @@
 package com.puremall.utils;
 
+/**
+ * JWT工具类
+ * 用于生成、解析和验证JWT令牌
+ */
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -8,8 +13,7 @@ import org.springframework.stereotype.Component;
 import com.puremall.config.JwtConfig;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class JwtUtils {
@@ -21,13 +25,16 @@ public class JwtUtils {
     public String generateToken(Long userId, String username) {
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + jwtConfig.getExpiration());
+        
+        // 创建密钥对象
+        SecretKeySpec secretKeySpec = new SecretKeySpec(jwtConfig.getSecret().getBytes(), SignatureAlgorithm.HS256.getJcaName());
 
         return Jwts.builder()
                 .setSubject(username)
                 .claim("userId", userId)
                 .setIssuedAt(now)
                 .setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS256, jwtConfig.getSecret())
+                .signWith(secretKeySpec)
                 .compact();
     }
 
@@ -56,8 +63,12 @@ public class JwtUtils {
 
     // 解析JWT令牌，获取Claims
     private Claims getClaimsFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(jwtConfig.getSecret())
+        // 创建密钥对象
+        SecretKeySpec secretKeySpec = new SecretKeySpec(jwtConfig.getSecret().getBytes(), SignatureAlgorithm.HS256.getJcaName());
+        
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKeySpec)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }

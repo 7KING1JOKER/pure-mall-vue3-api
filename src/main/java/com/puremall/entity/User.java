@@ -1,5 +1,10 @@
 package com.puremall.entity;
 
+/**
+ * 用户实体类
+ * 存储用户的基本信息
+ */
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

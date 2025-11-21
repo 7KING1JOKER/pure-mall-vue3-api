@@ -1,5 +1,10 @@
 package com.puremall.entity;
 
+/**
+ * 订单项实体类
+ * 存储订单中的商品信息
+ */
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

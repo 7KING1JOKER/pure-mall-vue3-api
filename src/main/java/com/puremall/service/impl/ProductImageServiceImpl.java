@@ -1,5 +1,10 @@
 package com.puremall.service.impl;
 
+/**
+ * 商品图片服务实现类
+ * 实现商品图片相关的业务逻辑操作
+ */
+
 import com.puremall.entity.ProductImage;
 import com.puremall.mapper.ProductImageMapper;
 import com.puremall.service.ProductImageService;

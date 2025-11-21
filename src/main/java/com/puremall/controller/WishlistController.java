@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 收藏夹管理控制器
+ * 处理收藏夹的增删改查等操作
+ */
+
 import com.puremall.entity.Wishlist;
 import com.puremall.entity.WishlistItem;
 import com.puremall.service.WishlistService;

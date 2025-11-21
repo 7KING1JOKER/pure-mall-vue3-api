@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 商品评价管理控制器
+ * 处理商品评价的增删改查等操作
+ */
+
 import com.puremall.entity.ProductReview;
 import com.puremall.service.ProductReviewService;
 import com.puremall.response.Response;

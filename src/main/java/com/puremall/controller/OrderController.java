@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 订单管理控制器
+ * 处理订单的创建、查询、更新等操作
+ */
+
 import com.puremall.entity.Order;
 import com.puremall.service.OrderService;
 import com.puremall.response.Response;

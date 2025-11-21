@@ -1,5 +1,10 @@
 package com.puremall.mapper;
 
+/**
+ * 购物车商品项Mapper接口
+ * 用于购物车商品项数据的数据库操作
+ */
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.puremall.entity.CartItem;
 import java.util.List;

@@ -1,5 +1,10 @@
 package com.puremall.mapper;
 
+/**
+ * 用户Mapper接口
+ * 用于用户数据的数据库操作
+ */
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.puremall.entity.User;
 

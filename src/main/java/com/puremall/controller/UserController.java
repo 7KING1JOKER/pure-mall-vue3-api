@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 用户管理控制器
+ * 处理用户的登录、注册、信息管理等操作
+ */
+
 import com.puremall.entity.User;
 import com.puremall.service.UserService;
 import com.puremall.response.Response;

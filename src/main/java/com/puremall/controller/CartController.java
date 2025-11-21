@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 购物车管理控制器
+ * 处理购物车的增删改查等操作
+ */
+
 import com.puremall.entity.Cart;
 import com.puremall.entity.CartItem;
 import com.puremall.service.CartService;

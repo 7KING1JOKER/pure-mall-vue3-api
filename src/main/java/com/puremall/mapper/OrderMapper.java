@@ -1,5 +1,10 @@
 package com.puremall.mapper;
 
+/**
+ * 订单Mapper接口
+ * 用于订单数据的数据库操作
+ */
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.puremall.entity.Order;
 import java.util.List;

@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 商品图片管理控制器
+ * 处理商品图片的增删改查等操作
+ */
+
 import com.puremall.entity.ProductImage;
 import com.puremall.service.ProductImageService;
 import com.puremall.response.Response;

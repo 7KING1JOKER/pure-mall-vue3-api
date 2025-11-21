@@ -1,5 +1,10 @@
 package com.puremall.exception;
 
+/**
+ * 业务异常类
+ * 用于处理业务逻辑中的异常情况
+ */
+
 public class BusinessException extends RuntimeException {
     private int code;
 

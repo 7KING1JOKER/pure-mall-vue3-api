@@ -1,5 +1,10 @@
 package com.puremall.service;
 
+/**
+ * 商品服务接口
+ * 提供商品相关的业务逻辑操作
+ */
+
 import com.puremall.entity.Product;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.core.metadata.IPage;

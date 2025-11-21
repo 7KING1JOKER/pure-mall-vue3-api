@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 商品规格管理控制器
+ * 处理商品规格的增删改查等操作
+ */
+
 import com.puremall.entity.ProductSpec;
 import com.puremall.service.ProductSpecService;
 import com.puremall.response.Response;

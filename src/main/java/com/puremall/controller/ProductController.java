@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 商品管理控制器
+ * 处理商品的增删改查等操作
+ */
+
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.puremall.entity.Product;
 import com.puremall.service.ProductService;

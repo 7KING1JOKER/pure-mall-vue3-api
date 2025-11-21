@@ -1,5 +1,10 @@
 package com.puremall.service;
 
+/**
+ * 订单服务接口
+ * 提供订单相关的业务逻辑操作
+ */
+
 import com.puremall.entity.Order;
 import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;

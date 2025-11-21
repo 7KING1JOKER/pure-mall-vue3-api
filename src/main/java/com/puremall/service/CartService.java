@@ -1,5 +1,10 @@
 package com.puremall.service;
 
+/**
+ * 购物车服务接口
+ * 提供购物车相关的业务逻辑操作
+ */
+
 import com.puremall.entity.Cart;
 import com.puremall.entity.CartItem;
 import com.baomidou.mybatisplus.extension.service.IService;

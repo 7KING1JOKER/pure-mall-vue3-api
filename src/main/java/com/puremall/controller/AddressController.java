@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 地址管理控制器
+ * 处理用户地址的增删改查等操作
+ */
+
 import com.puremall.entity.Address;
 import com.puremall.service.AddressService;
 import com.puremall.response.Response;

@@ -1,5 +1,10 @@
 package com.puremall.service.impl;
 
+/**
+ * 商品评价服务实现类
+ * 实现商品评价相关的业务逻辑操作
+ */
+
 import com.puremall.entity.ProductReview;
 import com.puremall.mapper.ProductReviewMapper;
 import com.puremall.service.ProductReviewService;

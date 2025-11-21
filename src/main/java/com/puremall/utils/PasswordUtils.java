@@ -1,5 +1,10 @@
 package com.puremall.utils;
 
+/**
+ * 密码工具类
+ * 用于密码的加密和验证
+ */
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 

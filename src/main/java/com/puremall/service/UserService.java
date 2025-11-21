@@ -1,5 +1,10 @@
 package com.puremall.service;
 
+/**
+ * 用户服务接口
+ * 提供用户相关的业务逻辑操作
+ */
+
 import com.puremall.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 

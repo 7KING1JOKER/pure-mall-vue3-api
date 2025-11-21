@@ -1,5 +1,10 @@
 package com.puremall.service.impl;
 
+/**
+ * 用户服务实现类
+ * 实现用户相关的业务逻辑操作
+ */
+
 import com.puremall.entity.User;
 import com.puremall.mapper.UserMapper;
 import com.puremall.service.UserService;

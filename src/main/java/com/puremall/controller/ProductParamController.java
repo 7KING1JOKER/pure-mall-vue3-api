@@ -1,5 +1,10 @@
 package com.puremall.controller;
 
+/**
+ * 商品参数管理控制器
+ * 处理商品参数的增删改查等操作
+ */
+
 import com.puremall.entity.ProductParam;
 import com.puremall.service.ProductParamService;
 import com.puremall.response.Response;

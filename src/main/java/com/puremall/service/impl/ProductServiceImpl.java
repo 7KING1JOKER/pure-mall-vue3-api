@@ -1,5 +1,10 @@
 package com.puremall.service.impl;
 
+/**
+ * 商品服务实现类
+ * 实现商品相关的业务逻辑操作
+ */
+
 import com.puremall.entity.Product;
 import com.puremall.mapper.ProductMapper;
 import com.puremall.service.ProductService;

@@ -1,5 +1,10 @@
 package com.puremall.response;
 
+/**
+ * 统一响应实体类
+ * 用于封装API响应结果
+ */
+
 import lombok.Data;
 
 @Data

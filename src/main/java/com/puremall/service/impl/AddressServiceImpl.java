@@ -1,5 +1,10 @@
 package com.puremall.service.impl;
 
+/**
+ * 地址服务实现类
+ * 实现地址相关的业务逻辑操作
+ */
+
 import com.puremall.entity.Address;
 import com.puremall.mapper.AddressMapper;
 import com.puremall.service.AddressService;

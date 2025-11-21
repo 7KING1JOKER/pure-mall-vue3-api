@@ -1,5 +1,10 @@
 package com.puremall.mapper;
 
+/**
+ * 地址Mapper接口
+ * 用于地址数据的数据库操作
+ */
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.puremall.entity.Address;
 import java.util.List;

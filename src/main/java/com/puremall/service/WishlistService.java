@@ -1,5 +1,10 @@
 package com.puremall.service;
 
+/**
+ * 收藏夹服务接口
+ * 提供收藏夹相关的业务逻辑操作
+ */
+
 import com.puremall.entity.Wishlist;
 import com.puremall.entity.WishlistItem;
 import com.baomidou.mybatisplus.extension.service.IService;

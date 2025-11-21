@@ -1,5 +1,10 @@
 package com.puremall.service.impl;
 
+/**
+ * 收藏夹服务实现类
+ * 实现收藏夹相关的业务逻辑操作
+ */
+
 import com.puremall.entity.Wishlist;
 import com.puremall.entity.WishlistItem;
 import com.puremall.mapper.WishlistMapper;

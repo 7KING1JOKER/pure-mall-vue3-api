@@ -1,5 +1,10 @@
 package com.puremall.service.impl;
 
+/**
+ * 商品参数服务实现类
+ * 实现商品参数相关的业务逻辑操作
+ */
+
 import com.puremall.entity.ProductParam;
 import com.puremall.mapper.ProductParamMapper;
 import com.puremall.service.ProductParamService;

@@ -1,5 +1,10 @@
 package com.puremall.service.impl;
 
+/**
+ * 购物车服务实现类
+ * 实现购物车相关的业务逻辑操作
+ */
+
 import com.puremall.entity.Cart;
 import com.puremall.entity.CartItem;
 import com.puremall.entity.ProductSpec;
