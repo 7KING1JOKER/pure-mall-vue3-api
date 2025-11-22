@@ -23,8 +23,10 @@ public class Address implements Serializable {
     private String province;
     private String city;
     private String district;
+    private String street;
+    private String postcode;
     private String detail;
-    private Integer isDefault;
+    private Boolean isDefault;
     private Date createTime;
     private Date updateTime;
 
@@ -85,6 +87,22 @@ public class Address implements Serializable {
         this.district = district;
     }
 
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getPostcode() {
+        return postcode;
+    }
+
+    public void setPostcode(String postcode) {
+        this.postcode = postcode;
+    }
+
     public String getDetail() {
         return detail;
     }
@@ -93,11 +111,11 @@ public class Address implements Serializable {
         this.detail = detail;
     }
 
-    public Integer getIsDefault() {
+    public Boolean getIsDefault() {
         return isDefault;
     }
 
-    public void setIsDefault(Integer isDefault) {
+    public void setIsDefault(Boolean isDefault) {
         this.isDefault = isDefault;
     }
 

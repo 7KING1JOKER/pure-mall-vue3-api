@@ -6,7 +6,7 @@ package com.puremall.controller;
  */
 
 import com.puremall.entity.Wishlist;
-import com.puremall.entity.WishlistItem;
+import com.puremall.entity.Product;
 import com.puremall.service.WishlistService;
 import com.puremall.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +29,7 @@ public class WishlistController {
     @Operation(summary = "获取收藏夹")
     public Response<Map<String, Object>> getWishlist(@RequestParam Long userId) {
         Wishlist wishlist = wishlistService.getWishlist(userId);
-        List<WishlistItem> items = wishlistService.getWishlistItems(wishlist.getId());
+        List<Product> items = wishlistService.getWishlistItems(wishlist.getId());
         
         Map<String, Object> result = new HashMap<>();
         result.put("wishlist", wishlist);
@@ -45,10 +45,10 @@ public class WishlistController {
         return Response.success(null);
     }
 
-    @DeleteMapping("/item/{wishlistItemId}")
+    @DeleteMapping("/item")
     @Operation(summary = "从收藏夹删除商品")
-    public Response<Void> removeFromWishlist(@RequestParam Long userId, @PathVariable Long wishlistItemId) {
-        wishlistService.removeFromWishlist(userId, wishlistItemId);
+    public Response<Void> removeFromWishlist(@RequestParam Long userId, @RequestParam Long productId) {
+        wishlistService.removeFromWishlist(userId, productId);
         return Response.success(null);
     }
 

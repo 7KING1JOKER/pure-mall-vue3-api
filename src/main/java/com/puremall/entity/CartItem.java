@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @TableName("cart_items")
@@ -20,9 +21,11 @@ public class CartItem implements Serializable {
     private Long cartId;
     private Long productId;
     private Long specId;
+    private String name;
+    private String imageUrl;
     private Integer quantity;
     private Integer selected;
-    private java.math.BigDecimal price;
+    private BigDecimal price;
     private Date createTime;
     private Date updateTime;
 
@@ -57,6 +60,22 @@ public class CartItem implements Serializable {
 
     public void setSpecId(Long specId) {
         this.specId = specId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Integer getQuantity() {

@@ -20,11 +20,12 @@ public class OrderItem implements Serializable {
     private Long orderId;
     private Long productId;
     private Long specId;
-    private String productName;
-    private String specName;
+    private String name;
+    private String spec;
+    private String imageUrl;
     private BigDecimal price;
     private Integer quantity;
-    private String imageUrl;
+    private Boolean selected;
 
     // getter and setter
     public Long getId() {
@@ -59,20 +60,20 @@ public class OrderItem implements Serializable {
         this.specId = specId;
     }
 
-    public String getProductName() {
-        return productName;
+    public String getName() {
+        return name;
     }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getSpecName() {
-        return specName;
+    public String getSpec() {
+        return spec;
     }
 
-    public void setSpecName(String specName) {
-        this.specName = specName;
+    public void setSpec(String spec) {
+        this.spec = spec;
     }
 
     public BigDecimal getPrice() {
@@ -97,5 +98,13 @@ public class OrderItem implements Serializable {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

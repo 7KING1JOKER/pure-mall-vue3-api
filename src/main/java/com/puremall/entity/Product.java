@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @TableName("products")
 public class Product implements Serializable {
@@ -23,11 +24,14 @@ public class Product implements Serializable {
     private BigDecimal price;
     private BigDecimal originalPrice;
     private Integer sales;
-    private Long categoryId;
+    private String categoryLabel;
     private String detail;
     private Integer status;
     private Date createTime;
     private Date updateTime;
+    
+    // 商品图片列表
+    private List<ProductImage> images;
 
     // getter and setter
     public Long getId() {
@@ -78,12 +82,12 @@ public class Product implements Serializable {
         this.sales = sales;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public String getCategoryLabel() {
+        return categoryLabel;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setCategoryLabel(String categoryLabel) {
+        this.categoryLabel = categoryLabel;
     }
 
     public String getDetail() {
@@ -116,5 +120,13 @@ public class Product implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public List<ProductImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ProductImage> images) {
+        this.images = images;
     }
 }

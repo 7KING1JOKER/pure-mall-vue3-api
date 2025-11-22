@@ -34,7 +34,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
     public Address addAddress(Long userId, Address address) {
         address.setUserId(userId);
         // 如果是默认地址，先取消其他地址的默认状态
-        if (address.getIsDefault() == 1) {
+        if (address.getIsDefault()) {
             addressMapper.updateDefaultByUserId(userId, 0);
         }
         addressMapper.insert(address);
@@ -51,7 +51,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
             throw new BusinessException("无权操作该地址");
         }
         // 如果设置为默认地址，先取消其他地址的默认状态
-        if (address.getIsDefault() == 1) {
+        if (address.getIsDefault()) {
             addressMapper.updateDefaultByUserId(userId, 0);
         }
         address.setId(addressId);
@@ -84,7 +84,7 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
         // 取消其他地址的默认状态
         addressMapper.updateDefaultByUserId(userId, 0);
         // 设置当前地址为默认
-        existingAddress.setIsDefault(1);
+        existingAddress.setIsDefault(true);
         addressMapper.updateById(existingAddress);
     }
 }

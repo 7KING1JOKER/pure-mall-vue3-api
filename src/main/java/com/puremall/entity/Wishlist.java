@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @TableName("wishlists")
 public class Wishlist implements Serializable {
@@ -19,6 +20,8 @@ public class Wishlist implements Serializable {
     private Long id;
     private Long userId;
     private Date createTime;
+
+    private List<Product> wishListItems;
 
     // getter and setter
     public Long getId() {
@@ -43,5 +46,13 @@ public class Wishlist implements Serializable {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public List<Product> getWishListItems() {
+        return wishListItems;
+    }
+
+    public void setWishListItems(List<Product> wishListItems) {
+        this.wishListItems = wishListItems;
     }
 }

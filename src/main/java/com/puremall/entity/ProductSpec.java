@@ -22,6 +22,9 @@ public class ProductSpec implements Serializable {
     private String name;
     private BigDecimal price;
     private Integer stock;
+    private Integer salesAmount;
+    private String color;
+    private String size;
     private Date createTime;
 
     // getter and setter
@@ -64,6 +67,31 @@ public class ProductSpec implements Serializable {
     public void setStock(Integer stock) {
         this.stock = stock;
     }
+    
+    public Integer getSalesAmount() {
+        return salesAmount;
+    }
+
+    public void setSalesAmount(Integer salesAmount) {
+        this.salesAmount = salesAmount;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+    
 
     public Date getCreateTime() {
         return createTime;
