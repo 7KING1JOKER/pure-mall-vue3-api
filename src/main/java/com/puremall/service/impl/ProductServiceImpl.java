@@ -24,7 +24,9 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public IPage<Product> getProductPage(Integer page, Integer size, Long categoryId, String keyword) {
         Page<Product> productPage = new Page<>(page, size);
-        return productMapper.selectProductPage(productPage, categoryId, keyword);
+        // 将Long类型的categoryId转换为String类型再传递给mapper
+        String categoryIdStr = categoryId != null ? categoryId.toString() : null;
+        return productMapper.selectProductPage(productPage, categoryIdStr, keyword);
     }
 
     @Override

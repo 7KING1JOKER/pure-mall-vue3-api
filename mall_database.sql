@@ -131,13 +131,13 @@ CREATE TABLE wishlists (
     INDEX idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏夹表';
 
--- 8. 收藏夹商品关联表 (wishlist_products)
-DROP TABLE IF EXISTS wishlist_products;
-CREATE TABLE wishlist_products (
+-- 8. 收藏夹商品关联表 (wishlist_items)
+DROP TABLE IF EXISTS wishlist_items;
+CREATE TABLE wishlist_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '关联ID',
     wishlist_id BIGINT NOT NULL COMMENT '收藏夹ID',
     product_id BIGINT NOT NULL COMMENT '商品ID',
-    add_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
     UNIQUE KEY uk_wishlist_product (wishlist_id, product_id),
     FOREIGN KEY (wishlist_id) REFERENCES wishlists(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,

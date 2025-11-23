@@ -8,9 +8,59 @@ package com.puremall.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.puremall.entity.WishlistItem;
 import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Delete;
 
+@Mapper
 public interface WishlistItemMapper extends BaseMapper<WishlistItem> {
-    // 自定义查询方法
+    // 根据收藏夹ID查询收藏的商品列表
+    @Select("SELECT * FROM wishlist_items WHERE wishlist_id = #{wishlistId} ORDER BY create_time DESC")
     List<WishlistItem> findByWishlistId(Long wishlistId);
+    
+    // 根据收藏夹ID和商品ID查询
+    @Select("SELECT * FROM wishlist_items WHERE wishlist_id = #{wishlistId} AND product_id = #{productId}")
     WishlistItem findByWishlistIdAndProductId(Long wishlistId, Long productId);
+    
+    // 根据ID查询
+    @Select("SELECT * FROM wishlist_items WHERE id = #{id}")
+    WishlistItem findById(Long id);
+    
+    // 根据用户ID查询收藏的商品（通过关联查询）
+    @Select("SELECT wi.* FROM wishlist_items wi JOIN wishlists w ON wi.wishlist_id = w.id WHERE w.user_id = #{userId} ORDER BY wi.create_time DESC")
+    List<WishlistItem> findByUserId(Long userId);
+    
+    // 插入收藏记录
+    @Insert("INSERT INTO wishlist_items(wishlist_id, product_id, create_time) VALUES(#{wishlistId}, #{productId}, NOW())")
+    int insert(WishlistItem wishlistItem);
+    
+    // 更新收藏记录
+    @Update("UPDATE wishlist_items SET wishlist_id = #{wishlistId}, product_id = #{productId}, create_time = #{createTime} WHERE id = #{id}")
+    int update(WishlistItem wishlistItem);
+    
+    // 根据ID删除收藏记录
+    @Delete("DELETE FROM wishlist_items WHERE id = #{id}")
+    int deleteById(Long id);
+    
+    // 根据收藏夹ID和商品ID删除收藏记录
+    @Delete("DELETE FROM wishlist_items WHERE wishlist_id = #{wishlistId} AND product_id = #{productId}")
+    int deleteByWishlistIdAndProductId(Long wishlistId, Long productId);
+    
+    // 根据收藏夹ID删除所有收藏记录
+    @Delete("DELETE FROM wishlist_items WHERE wishlist_id = #{wishlistId}")
+    int deleteByWishlistId(Long wishlistId);
+    
+    // 根据商品ID删除所有收藏记录
+    @Delete("DELETE FROM wishlist_items WHERE product_id = #{productId}")
+    int deleteByProductId(Long productId);
+    
+    // 检查商品是否已收藏
+    @Select("SELECT COUNT(*) FROM wishlist_items WHERE wishlist_id = #{wishlistId} AND product_id = #{productId}")
+    int existsByWishlistIdAndProductId(Long wishlistId, Long productId);
+    
+    // 根据收藏夹ID统计收藏数量
+    @Select("SELECT COUNT(*) FROM wishlist_items WHERE wishlist_id = #{wishlistId}")
+    int countByWishlistId(Long wishlistId);
 }
