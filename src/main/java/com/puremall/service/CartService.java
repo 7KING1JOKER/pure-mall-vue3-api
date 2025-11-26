@@ -9,6 +9,7 @@ import com.puremall.entity.Cart;
 import com.puremall.entity.CartItem;
 import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
+import java.util.Map;
 
 public interface CartService extends IService<Cart> {
     Cart getCart(Long userId);
@@ -18,4 +19,9 @@ public interface CartService extends IService<Cart> {
     void deleteCartItem(Long userId, Long cartItemId);
     void toggleCartItemSelected(Long userId, Long cartItemId);
     void toggleAllCartItemsSelected(Long userId, Boolean selected);
+    Map<String, Object> getCartStatistics(Long userId);
+    List<CartItem> getSelectedCartItems(Long userId);
+    void deleteSelectedCartItems(Long userId);
+    void clearCart(Long userId);
+    void updateCartItemsBatch(Long userId, List<Map<String, Object>> items);
 }

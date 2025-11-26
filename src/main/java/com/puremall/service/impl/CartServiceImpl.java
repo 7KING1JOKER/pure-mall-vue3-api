@@ -16,7 +16,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.puremall.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.List;
+import java.math.BigDecimal;
+import java.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 @Service
@@ -45,7 +46,16 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
 
     @Override
     public List<CartItem> getCartItems(Long cartId) {
-        return cartItemMapper.findByCartId(cartId);
+        // 获取购物车所有商品项，并更新价格
+        List<CartItem> items = cartItemMapper.findByCartId(cartId);
+        for (CartItem item : items) {
+            // 更新商品价格为最新价格
+            ProductSpec spec = productSpecMapper.selectById(item.getSpecId());
+            if (spec != null) {
+                item.setPrice(spec.getPrice());
+            }
+        }
+        return items;
     }
 
     @Override
@@ -170,6 +180,101 @@ public class CartServiceImpl extends ServiceImpl<CartMapper, Cart> implements Ca
         for (CartItem cartItem : cartItems) {
             cartItem.setSelected(selected ? 1 : 0);
             cartItemMapper.updateById(cartItem);
+        }
+    }
+    
+    @Override
+    public Map<String, Object> getCartStatistics(Long userId) {
+        Cart cart = getCart(userId);
+        List<CartItem> cartItems = getCartItems(cart.getId());
+        
+        Map<String, Object> statistics = new HashMap<>();
+        int totalCount = 0; // 总商品数量
+        int selectedCount = 0; // 选中商品数量
+        BigDecimal totalAmount = BigDecimal.ZERO; // 选中商品总金额
+        boolean allSelected = true; // 是否全选
+        
+        for (CartItem item : cartItems) {
+            totalCount += item.getQuantity();
+            if (item.getSelected() == 1) {
+                selectedCount += item.getQuantity();
+                totalAmount = totalAmount.add(item.getPrice().multiply(new BigDecimal(item.getQuantity())));
+            } else {
+                allSelected = false;
+            }
+        }
+        
+        statistics.put("totalCount", totalCount);
+        statistics.put("selectedCount", selectedCount);
+        statistics.put("totalAmount", totalAmount);
+        statistics.put("allSelected", allSelected && !cartItems.isEmpty());
+        
+        return statistics;
+    }
+    
+    @Override
+    public List<CartItem> getSelectedCartItems(Long userId) {
+        Cart cart = getCart(userId);
+        QueryWrapper<CartItem> wrapper = new QueryWrapper<>();
+        wrapper.eq("cart_id", cart.getId())
+               .eq("selected", 1);
+        return cartItemMapper.selectList(wrapper);
+    }
+    
+    @Override
+    public void deleteSelectedCartItems(Long userId) {
+        Cart cart = getCart(userId);
+        QueryWrapper<CartItem> wrapper = new QueryWrapper<>();
+        wrapper.eq("cart_id", cart.getId())
+               .eq("selected", 1);
+        cartItemMapper.delete(wrapper);
+    }
+    
+    @Override
+    public void clearCart(Long userId) {
+        Cart cart = getCart(userId);
+        QueryWrapper<CartItem> wrapper = new QueryWrapper<>();
+        wrapper.eq("cart_id", cart.getId());
+        cartItemMapper.delete(wrapper);
+    }
+    
+    @Override
+    public void updateCartItemsBatch(Long userId, List<Map<String, Object>> updates) {
+        Cart cart = getCart(userId);
+        
+        for (Map<String, Object> update : updates) {
+            Long itemId = Long.valueOf(update.get("id").toString());
+            Integer quantity = update.get("quantity") != null ? Integer.valueOf(update.get("quantity").toString()) : null;
+            Integer selected = update.get("selected") != null ? Integer.valueOf(update.get("selected").toString()) : null;
+            
+            // 验证购物车项是否存在且属于当前用户
+            CartItem cartItem = cartItemMapper.selectById(itemId);
+            if (cartItem == null || !cartItem.getCartId().equals(cart.getId())) {
+                continue; // 跳过不存在或不属于当前用户的项
+            }
+            
+            boolean needUpdate = false;
+            
+            // 更新数量
+            if (quantity != null && quantity > 0) {
+                // 检查库存
+                ProductSpec spec = productSpecMapper.selectById(cartItem.getSpecId());
+                if (spec != null && quantity <= spec.getStock()) {
+                    cartItem.setQuantity(quantity);
+                    cartItem.setPrice(spec.getPrice());
+                    needUpdate = true;
+                }
+            }
+            
+            // 更新选中状态
+            if (selected != null && selected >= 0 && selected <= 1) {
+                cartItem.setSelected(selected);
+                needUpdate = true;
+            }
+            
+            if (needUpdate) {
+                cartItemMapper.updateById(cartItem);
+            }
         }
     }
 }

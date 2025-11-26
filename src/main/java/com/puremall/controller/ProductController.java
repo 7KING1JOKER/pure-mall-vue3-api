@@ -5,7 +5,6 @@ package com.puremall.controller;
  * 处理商品的增删改查等操作
  */
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.puremall.entity.Product;
 import com.puremall.service.ProductService;
 import com.puremall.response.Response;
@@ -25,25 +24,35 @@ public class ProductController {
 
     @GetMapping("/page")
     @Operation(summary = "分页获取商品列表")
-    public Response<IPage<Product>> getProductPage(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
-                                                 @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-                                                 @RequestParam(required = false) Long categoryId,
-                                                 @RequestParam(required = false) String keyword) {
-        IPage<Product> productPage = productService.getProductPage(pageNum, pageSize, categoryId, keyword);
-        return Response.success(productPage);
+    public Response<?> getProductPage(
+            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword) {
+        return Response.success(productService.getProductPage(pageNum, pageSize, categoryId, keyword));
     }
 
     @GetMapping("/{productId}")
     @Operation(summary = "获取商品详情")
     public Response<Product> getProductById(@PathVariable Long productId) {
-        Product product = productService.getProductById(productId);
-        return Response.success(product);
+        return Response.success(productService.getProductById(productId));
     }
 
     @GetMapping("/category/{categoryId}")
     @Operation(summary = "根据分类获取商品列表")
-    public Response<List<Product>> getProductsByCategory(@PathVariable Long categoryId) {
-        List<Product> products = productService.getProductsByCategory(categoryId);
-        return Response.success(products);
+    public Response<?> getProductsByCategory(
+            @PathVariable Long categoryId,
+            @RequestParam(required = false) Integer pageNum,
+            @RequestParam(required = false) Integer pageSize) {
+        if (pageNum != null && pageSize != null) {
+            // 分页查询
+            return Response.success(productService.getProductPage(pageNum, pageSize, categoryId, null));
+        } else {
+            // 不分页查询
+            List<Product> products = productService.getProductsByCategory(categoryId);
+            return Response.success(products);
+        }
     }
+    
+
 }

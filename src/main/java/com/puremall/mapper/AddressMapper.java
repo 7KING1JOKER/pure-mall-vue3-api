@@ -51,4 +51,8 @@ public interface AddressMapper extends BaseMapper<Address> {
     // 检查地址是否存在且属于该用户
     @Select("SELECT COUNT(*) FROM addresses WHERE id = #{id} AND user_id = #{userId}")
     int existsByIdAndUserId(Long id, Long userId);
+    
+    // 统计用户地址数量
+    @Select("SELECT COUNT(*) FROM addresses WHERE user_id = #{userId}")
+    int countByUserId(Long userId);
 }

@@ -8,12 +8,15 @@ package com.puremall.service;
 import com.puremall.entity.Address;
 import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
+import java.util.Map;
 
 public interface AddressService extends IService<Address> {
-    List<Address> getAddressesByUserId(Long userId);
-    Address getDefaultAddressByUserId(Long userId);
+    List<Address> getUserAddresses(Long userId);
+    Address getDefaultAddress(Long userId);
+    Address getAddressById(Long userId, Long addressId);
     Address addAddress(Long userId, Address address);
     Address updateAddress(Long userId, Long addressId, Address address);
     void deleteAddress(Long userId, Long addressId);
-    void setDefaultAddress(Long userId, Long addressId);
+    Map<String, Object> setDefaultAddress(Long userId, Long addressId);
+    int getUserAddressCount(Long userId);
 }
