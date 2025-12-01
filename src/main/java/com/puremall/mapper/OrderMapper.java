@@ -24,7 +24,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<Order> findByUserId(@Param("userId") Long userId);
     
     // 根据订单号查询订单
-    @Select("SELECT * FROM orders WHERE order_number = #{orderNumber}")
+    @Select("SELECT * FROM orders WHERE orderNumber = #{orderNumber}")
     Order findByOrderNumber(@Param("orderNumber") String orderNumber);
     
     // 根据ID查询订单
@@ -44,11 +44,11 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<Order> findByUserIdAndStatus(@Param("userId") Long userId, @Param("status") String status);
     
     // 插入订单
-    @Insert("INSERT INTO orders(userId, orderNumber, orderAmount, receiverAddress, status, paymentMethod, createTime, updateTime) VALUES(#{userId}, #{orderNumber}, #{orderAmount}, #{receiverAddress}, #{status}, #{paymentMethod}, NOW(), NOW())")
+    @Insert("INSERT INTO orders(userId, orderNumber, orderTime, paymentTime, deliveryTime, receiveTime, orderAmount, paymentMethod, status, receiverName, receiverPhone, receiverAddress, remark, createTime, updateTime) VALUES(#{userId}, #{orderNumber}, #{orderTime}, #{paymentTime}, #{deliveryTime}, #{receiveTime}, #{orderAmount}, #{paymentMethod}, #{status}, #{receiverName}, #{receiverPhone}, #{receiverAddress}, #{remark}, NOW(), NOW())")
     int insert(Order order);
     
     // 更新订单
-    @Update("UPDATE orders SET orderAmount = #{orderAmount}, receiverAddress = #{receiverAddress}, status = #{status}, paymentMethod = #{paymentMethod}, updateTime = NOW() WHERE id = #{id}")
+    @Update("UPDATE orders SET orderNumber = #{orderNumber}, orderTime = #{orderTime}, paymentTime = #{paymentTime}, deliveryTime = #{deliveryTime}, receiveTime = #{receiveTime}, orderAmount = #{orderAmount}, paymentMethod = #{paymentMethod}, status = #{status}, receiverName = #{receiverName}, receiverPhone = #{receiverPhone}, receiverAddress = #{receiverAddress}, remark = #{remark}, updateTime = NOW() WHERE id = #{id}")
     int update(Order order);
     
     // 更新订单状态
@@ -88,7 +88,7 @@ public interface OrderMapper extends BaseMapper<Order> {
     List<Order> findRecentOrders(@Param("limit") Integer limit);
     
     // 查询用户的订单列表（包含订单项信息）
-    @Select("SELECT o.*, oi.productName, oi.price, oi.quantity FROM orders o JOIN order_items oi ON o.id = oi.orderId WHERE o.userId = #{userId} ORDER BY o.updateTime DESC")
+    @Select("SELECT o.*, oi.name, oi.price, oi.quantity FROM orders o JOIN order_items oi ON o.id = oi.orderId WHERE o.userId = #{userId} ORDER BY o.updateTime DESC")
     List<Map<String, Object>> findOrdersWithItemsByUserId(@Param("userId") Long userId);
     
     // 查询订单详情（包含订单项）

@@ -29,15 +29,15 @@ public interface ProductReviewMapper extends BaseMapper<ProductReview> {
     List<ProductReview> findByUserId(Long userId);
     
     // 根据商品ID和评分查询评价
-    @Select("SELECT * FROM product_reviews WHERE product_id = #{productId} AND rating = #{rating} ORDER BY created_at DESC")
+    @Select("SELECT * FROM product_reviews WHERE productId = #{productId} AND rating = #{rating} ORDER BY createTime DESC")
     List<ProductReview> findByProductIdAndRating(Long productId, Integer rating);
     
     // 插入评论
-    @Insert("INSERT INTO product_reviews(productId, userId, rating, comment, createTime) VALUES(#{productId}, #{userId}, #{rating}, #{comment}, NOW())")
+    @Insert("INSERT INTO product_reviews(productId, userId, rating, comment, createTime, updateTime) VALUES(#{productId}, #{userId}, #{rating}, #{comment}, NOW(), NOW())")
     int insert(ProductReview productReview);
     
     // 更新评论
-    @Update("UPDATE product_reviews SET rating = #{rating}, comment = #{comment} WHERE id = #{id}")
+    @Update("UPDATE product_reviews SET rating = #{rating}, comment = #{comment}, updateTime = NOW() WHERE id = #{id}")
     int update(ProductReview productReview);
     
     // 删除评论
@@ -45,11 +45,11 @@ public interface ProductReviewMapper extends BaseMapper<ProductReview> {
     int deleteById(Long id);
     
     // 根据商品ID删除所有评价
-    @Delete("DELETE FROM product_reviews WHERE product_id = #{productId}")
+    @Delete("DELETE FROM product_reviews WHERE productId = #{productId}")
     int deleteByProductId(Long productId);
     
     // 根据用户ID删除所有评价
-    @Delete("DELETE FROM product_reviews WHERE user_id = #{userId}")
+    @Delete("DELETE FROM product_reviews WHERE userId = #{userId}")
     int deleteByUserId(Long userId);
     
     // 查询商品评论数量
@@ -61,6 +61,6 @@ public interface ProductReviewMapper extends BaseMapper<ProductReview> {
     Double getAverageRating(Long productId);
     
     // 根据评分统计评价数量
-    @Select("SELECT rating, COUNT(*) as count FROM product_reviews WHERE product_id = #{productId} GROUP BY rating ORDER BY rating DESC")
+    @Select("SELECT rating, COUNT(*) as count FROM product_reviews WHERE productId = #{productId} GROUP BY rating ORDER BY rating DESC")
     List<Object> countByRating(Long productId);
 }

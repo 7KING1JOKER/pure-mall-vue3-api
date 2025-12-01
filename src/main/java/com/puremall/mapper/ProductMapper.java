@@ -43,11 +43,11 @@ public interface ProductMapper extends BaseMapper<Product> {
     List<Product> findByCategoryLabel(String categoryLabel);
     
     // 插入商品
-    @Insert("INSERT INTO products(name, brief, price, originalPrice, sales, stock, status, categoryLabel, createTime, updateTime) VALUES(#{name}, #{brief}, #{price}, #{originalPrice}, #{sales}, #{stock}, #{status}, #{categoryLabel}, NOW(), NOW())")
+    @Insert("INSERT INTO products(name, brief, description, price, originalPrice, sales, stock, status, categoryLabel, createTime, updateTime) VALUES(#{name}, #{brief}, #{description}, #{price}, #{originalPrice}, #{sales}, #{stock}, #{status}, #{categoryLabel}, NOW(), NOW())")
     int insert(Product product);
     
     // 更新商品信息
-    @Update("UPDATE products SET name = #{name}, brief = #{brief}, price = #{price}, originalPrice = #{originalPrice}, stock = #{stock}, status = #{status}, categoryLabel = #{categoryLabel}, updateTime = NOW() WHERE id = #{id}")
+    @Update("UPDATE products SET name = #{name}, brief = #{brief}, description = #{description}, price = #{price}, originalPrice = #{originalPrice}, stock = #{stock}, status = #{status}, categoryLabel = #{categoryLabel}, updateTime = NOW() WHERE id = #{id}")
     int update(Product product);
     
     // 更新商品状态

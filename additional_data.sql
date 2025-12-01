@@ -1,229 +1,11 @@
--- 纯商城系统(Pure Mall)数据库脚本
--- 版本: 1.0
--- 创建日期: 2025-12-1
--- 说明: 基于项目实体类和前端数据生成的完整数据库脚本
-
--- ============================ 使用说明 ============================
--- 1. 直接在MySQL客户端执行此脚本
--- 2. 确保MySQL版本支持utf8mb4字符集
--- 3. 脚本将自动创建数据库、所有表结构以及插入基础数据
--- 4. 默认管理员账号: admin / admin123
--- ================================================================
-
--- 创建数据库
-CREATE DATABASE IF NOT EXISTS pure_mall DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE pure_mall;
+-- 纯商城系统(Pure Mall)额外数据脚本
+-- 基于现有的users、products、product_images和product_specs数据
 
 -- 设置外键检查临时关闭，方便导入数据
 SET FOREIGN_KEY_CHECKS = 0;
 
--- 1. 用户表 (users)
-DROP TABLE IF EXISTS users;
-CREATE TABLE users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '用户ID',
-    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
-    password VARCHAR(255) NOT NULL COMMENT '密码（加密存储）',
-    email VARCHAR(100) UNIQUE COMMENT '邮箱',
-    phone VARCHAR(20) UNIQUE COMMENT '手机号',
-    avatar VARCHAR(255) COMMENT '头像URL',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    last_login DATETIME COMMENT '最后登录时间',
-    status TINYINT DEFAULT 1 COMMENT '状态（1:正常，0:禁用）',
-    INDEX idx_username (username),
-    INDEX idx_phone (phone),
-    INDEX idx_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
-
--- 2. 商品表 (products)
-DROP TABLE IF EXISTS products;
-CREATE TABLE products (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '商品ID',
-    name VARCHAR(255) NOT NULL COMMENT '商品名称',
-    brief VARCHAR(500) COMMENT '商品简介',
-    price DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT '销售价格',
-    originalPrice DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT '原价',
-    sales INT NOT NULL DEFAULT 0 COMMENT '销量',
-    stock INT NOT NULL DEFAULT 0 COMMENT '库存',
-    categoryLabel VARCHAR(50) DEFAULT NULL COMMENT '商品分类标签',
-    detail LONGTEXT COMMENT '商品详情',
-    status TINYINT NOT NULL DEFAULT 1 COMMENT '状态（1:上架，0:下架）',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    INDEX idx_name (name),
-    INDEX idx_status (status),
-    INDEX idx_category (categoryLabel),
-    INDEX idx_price (price),
-    INDEX idx_sales (sales)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品表';
-
--- 3. 商品图片表 (product_images)
-DROP TABLE IF EXISTS product_images;
-CREATE TABLE product_images (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '图片ID',
-    productId BIGINT NOT NULL COMMENT '商品ID',
-    imageUrl VARCHAR(500) NOT NULL COMMENT '图片URL',
-    sortOrder INT DEFAULT 0 COMMENT '排序',
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    INDEX idx_productId (productId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品图片表';
-
--- 4. 商品规格表 (product_specs)
-DROP TABLE IF EXISTS product_specs;
-CREATE TABLE product_specs (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '规格ID',
-    productId BIGINT NOT NULL COMMENT '商品ID',
-    name VARCHAR(255) NOT NULL COMMENT '规格名称',
-    price DECIMAL(10, 2) NOT NULL COMMENT '规格价格',
-    stock INT DEFAULT 0 COMMENT '库存',
-    salesAmount INT DEFAULT 0 COMMENT '销量',
-    color VARCHAR(50) COMMENT '颜色',
-    size VARCHAR(50) COMMENT '尺码',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    INDEX idx_productId (productId),
-    INDEX idx_stock (stock)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品规格表';
-
--- 5. 商品评价表 (product_reviews)
-DROP TABLE IF EXISTS product_reviews;
-CREATE TABLE product_reviews (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '评价ID',
-    productId BIGINT NOT NULL COMMENT '商品ID',
-    userId BIGINT NOT NULL COMMENT '用户ID',
-    rating TINYINT NOT NULL COMMENT '评分（1-5星）',
-    content TEXT COMMENT '评价内容',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_productId (productId),
-    INDEX idx_userId (userId),
-    INDEX idx_rating (rating)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品评价表';
-
--- 6. 地址表 (addresses)
-DROP TABLE IF EXISTS addresses;
-CREATE TABLE addresses (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '地址ID',
-    userId BIGINT NOT NULL COMMENT '用户ID',
-    name VARCHAR(50) NOT NULL COMMENT '收货人姓名',
-    phone VARCHAR(20) NOT NULL COMMENT '收货人电话',
-    province VARCHAR(50) NOT NULL COMMENT '省份',
-    city VARCHAR(50) NOT NULL COMMENT '城市',
-    district VARCHAR(50) NOT NULL COMMENT '区县',
-    street VARCHAR(255) COMMENT '街道',
-    postcode VARCHAR(10) COMMENT '邮政编码',
-    detail VARCHAR(255) NOT NULL COMMENT '详细地址',
-    isDefault BOOLEAN DEFAULT FALSE COMMENT '是否默认地址',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_userId (userId),
-    INDEX idx_isDefault (isDefault)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收货地址表';
-
--- 7. 收藏夹表 (wishlists)
-DROP TABLE IF EXISTS wishlists;
-CREATE TABLE wishlists (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '收藏夹ID',
-    userId BIGINT NOT NULL UNIQUE COMMENT '用户ID',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_userId (userId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏夹表';
-
--- 8. 收藏夹商品关联表 (wishlist_items)
-DROP TABLE IF EXISTS wishlist_items;
-CREATE TABLE wishlist_items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '关联ID',
-    wishlistId BIGINT NOT NULL COMMENT '收藏夹ID',
-    productId BIGINT NOT NULL COMMENT '商品ID',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
-    UNIQUE KEY uk_wishlist_product (wishlistId, productId),
-    FOREIGN KEY (wishlistId) REFERENCES wishlists(id) ON DELETE CASCADE,
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    INDEX idx_wishlistId (wishlistId),
-    INDEX idx_productId (productId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏夹商品关联表';
-
--- 9. 购物车表 (carts)
-DROP TABLE IF EXISTS carts;
-CREATE TABLE carts (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '购物车ID',
-    userId BIGINT NOT NULL UNIQUE COMMENT '用户ID',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_userId (userId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='购物车表';
-
--- 10. 购物车项表 (cart_items)
-DROP TABLE IF EXISTS cart_items;
-CREATE TABLE cart_items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '购物车项ID',
-    cartId BIGINT NOT NULL COMMENT '购物车ID',
-    productId BIGINT NOT NULL COMMENT '商品ID',
-    specId BIGINT COMMENT '规格ID',
-    name VARCHAR(255) NOT NULL COMMENT '商品名称',
-    imageUrl VARCHAR(500) COMMENT '商品图片URL',
-    quantity INT NOT NULL DEFAULT 1 COMMENT '数量',
-    selected TINYINT DEFAULT 1 COMMENT '是否选中（1:选中，0:未选中）',
-    price DECIMAL(10, 2) NOT NULL COMMENT '单价',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    UNIQUE KEY uk_cart_product_spec (cartId, productId, specId),
-    FOREIGN KEY (cartId) REFERENCES carts(id) ON DELETE CASCADE,
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (specId) REFERENCES product_specs(id) ON DELETE SET NULL,
-    INDEX idx_cartId (cartId),
-    INDEX idx_productId (productId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='购物车商品项表';
-
--- 11. 订单表 (orders)
-DROP TABLE IF EXISTS orders;
-CREATE TABLE orders (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '订单ID',
-    orderNumber VARCHAR(50) NOT NULL UNIQUE COMMENT '订单号',
-    userId BIGINT NOT NULL COMMENT '用户ID',
-    orderTime DATETIME COMMENT '下单时间',
-    paymentTime DATETIME COMMENT '支付时间',
-    deliveryTime DATETIME COMMENT '发货时间',
-    receiveTime DATETIME COMMENT '收货时间',
-    orderAmount DECIMAL(10, 2) NOT NULL COMMENT '订单总金额',
-    paymentMethod VARCHAR(20) COMMENT '支付方式',
-    status VARCHAR(20) NOT NULL COMMENT '订单状态',
-    receiverName VARCHAR(50) NOT NULL COMMENT '收货人姓名',
-    receiverPhone VARCHAR(20) NOT NULL COMMENT '收货人电话',
-    receiverAddress VARCHAR(500) NOT NULL COMMENT '收货地址',
-    remark VARCHAR(500) COMMENT '订单备注',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_orderNumber (orderNumber),
-    INDEX idx_userId (userId),
-    INDEX idx_status (status),
-    INDEX idx_orderTime (orderTime)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单表';
-
--- 12. 订单项表 (order_items)
-DROP TABLE IF EXISTS order_items;
-CREATE TABLE order_items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '订单项ID',
-    orderId BIGINT NOT NULL COMMENT '订单ID',
-    productId BIGINT NOT NULL COMMENT '商品ID',
-    specId BIGINT COMMENT '规格ID',
-    name VARCHAR(255) NOT NULL COMMENT '商品名称',
-    spec VARCHAR(255) COMMENT '规格描述',
-    imageUrl VARCHAR(500) COMMENT '商品图片URL',
-    price DECIMAL(10, 2) NOT NULL COMMENT '单价',
-    quantity INT NOT NULL DEFAULT 1 COMMENT '数量',
-    selected BOOLEAN DEFAULT TRUE COMMENT '是否选中',
-    FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (specId) REFERENCES product_specs(id) ON DELETE SET NULL,
-    INDEX idx_orderId (orderId),
-    INDEX idx_productId (productId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单项表';
-
+-- 临时关闭外键检查以便顺利插入数据
+SET FOREIGN_KEY_CHECKS = 0;
 
 -- 为addresses表添加数据
 INSERT INTO addresses (userId, name, phone, province, city, district, street, postcode, detail, isDefault) VALUES
@@ -252,36 +34,36 @@ INSERT INTO carts (userId) VALUES
 (10002);
 
 -- 为cart_items表添加数据（同一个购物车中商品必须唯一）
-INSERT INTO cart_items (cartId, productId, quantity, selected, name, price) VALUES
-(1, 1001, 2, 1, '纯棉宽松短袖T恤', 99.0),   -- 用户1购物车中的商品1，数量2，已选中
-(1, 1002, 1, 1, '男士印花短袖T恤', 89.0),   -- 用户1购物车中的商品2，数量1，已选中
-(1, 1003, 3, 0, '女士修身短袖T恤', 109.0),  -- 用户1购物车中的商品3，数量3，未选中
-(2, 1004, 1, 1, '情侣装短袖T恤', 119.0),   -- 用户2购物车中的商品4，数量1，已选中
-(2, 1005, 2, 1, '商务休闲长袖衬衫', 199.0);   -- 用户2购物车中的商品5，数量2，已选中
+INSERT INTO cart_items (cartId, productId, quantity, selected) VALUES
+(1, 1001, 2, TRUE),   -- 用户1购物车中的商品1，数量2，已选中
+(1, 1002, 1, TRUE),   -- 用户1购物车中的商品2，数量1，已选中
+(1, 1003, 3, FALSE),  -- 用户1购物车中的商品3，数量3，未选中
+(2, 1004, 1, TRUE),   -- 用户2购物车中的商品4，数量1，已选中
+(2, 1005, 2, TRUE);   -- 用户2购物车中的商品5，数量2，已选中
 
 -- 为orders表添加数据
-INSERT INTO orders (userId, orderNumber, orderAmount, status, paymentMethod, receiverName, receiverPhone, receiverAddress) VALUES
-(10001, 'ORD20230501001', 599.98, 3, '在线支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室'),  -- 用户1的订单，状态：已完成
-(10001, 'ORD20230501002', 299.99, 2, '微信支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室'),  -- 用户1的订单，状态：已发货
-(10002, 'ORD20230501003', 899.97, 1, '支付宝', '李四', '13800138001', '广东省广州市天河区天河路385号太古汇商场3楼'),    -- 用户2的订单，状态：已支付
-(10002, 'ORD20230501004', 199.99, 0, '在线支付', '李四', '13800138001', '广东省广州市天河区天河路385号太古汇商场3楼'),  -- 用户2的订单，状态：待支付
-(10001, 'ORD20230501005', 499.98, 1, '微信支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室');  -- 用户1的订单，状态：已支付
+INSERT INTO orders (userId, orderNumber, totalPrice, status, addressId, paymentMethod) VALUES
+(10001, 'ORD20230501001', 599.98, 3, 1, '在线支付'),  -- 用户1的订单，状态：已完成
+(10001, 'ORD20230501002', 299.99, 2, 2, '微信支付'),  -- 用户1的订单，状态：已发货
+(10002, 'ORD20230501003', 899.97, 1, 3, '支付宝'),    -- 用户2的订单，状态：已支付
+(10002, 'ORD20230501004', 199.99, 0, 4, '在线支付'),  -- 用户2的订单，状态：待支付
+(10001, 'ORD20230501005', 499.98, 1, 5, '微信支付');  -- 用户1的订单，状态：已支付
 
 -- 为order_items表添加数据
-INSERT INTO order_items (orderId, productId, quantity, price, name) VALUES
-(1, 1001, 2, 199.99, '纯棉宽松短袖T恤'),  -- 订单1中的商品1，数量2，单价199.99
-(1, 1002, 1, 199.99, '男士印花短袖T恤'),  -- 订单1中的商品2，数量1，单价199.99
-(2, 1003, 1, 299.99, '女士修身短袖T恤'),  -- 订单2中的商品3，数量1，单价299.99
-(3, 1004, 3, 299.99, '情侣装短袖T恤'),  -- 订单3中的商品4，数量3，单价299.99
-(4, 1005, 1, 199.99, '商务休闲长袖衬衫');  -- 订单4中的商品5，数量1，单价199.99
+INSERT INTO order_items (orderId, productId, quantity, price) VALUES
+(1, 1001, 2, 199.99),  -- 订单1中的商品1，数量2，单价199.99
+(1, 1002, 1, 199.99),  -- 订单1中的商品2，数量1，单价199.99
+(2, 1003, 1, 299.99),  -- 订单2中的商品3，数量1，单价299.99
+(3, 1004, 3, 299.99),  -- 订单3中的商品4，数量3，单价299.99
+(4, 1005, 1, 199.99),  -- 订单4中的商品5，数量1，单价199.99
 
 -- 为product_reviews表添加数据
-INSERT INTO product_reviews (userId, productId, rating, content) VALUES
-(10001, 1001, 5, '商品质量非常好，物流也很快，很满意！'),
-(10001, 1002, 4, '商品不错，就是包装有点简陋。'),
-(10001, 1003, 5, '非常好用，值得购买！'),
-(10002, 1004, 4, '质量不错，性价比高。'),
-(10001, 1001, 5, '第二次购买了，依然满意！');
+INSERT INTO product_reviews (userId, productId, orderId, rating, comment) VALUES
+(10001, 1001, 1, 5, '商品质量非常好，物流也很快，很满意！'),
+(10001, 1002, 1, 4, '商品不错，就是包装有点简陋。'),
+(10001, 1003, 2, 5, '非常好用，值得购买！'),
+(10002, 1004, 3, 4, '质量不错，性价比高。'),
+(10001, 1001, 1, 5, '第二次购买了，依然满意！');
 
 -- 插入示例用户
 INSERT INTO users (id, username, password, email, phone, status) 
@@ -408,14 +190,6 @@ INSERT INTO product_specs (productId, name, price, stock, color, size) VALUES
 (1, '', 50, 100, '灰色', 'S'),
 (1, '', 60, 80, '灰色', 'M'),
 (1, '', 70, 90, '灰色', 'L'),
-(1, '', 80, 70, '灰色', 'XL');
-
+(1, '', 80, 70, '灰色', 'XL'),
 -- 恢复外键检查
 SET FOREIGN_KEY_CHECKS = 1;
-
--- ============================ 脚本执行完毕 ============================
--- 数据库初始化完成！您现在可以：
--- 1. 启动后端服务并连接到数据库
--- 2. 使用默认管理员账号登录系统
--- 3. 开始使用商城系统的各项功能
--- ====================================================================

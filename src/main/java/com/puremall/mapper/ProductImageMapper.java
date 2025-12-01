@@ -25,19 +25,19 @@ public interface ProductImageMapper extends BaseMapper<ProductImage> {
     ProductImage findById(Long id);
     
     // 插入商品图片
-    @Insert("INSERT INTO product_images(productId, imageUrl, sortOrder) VALUES(#{productId}, #{imageUrl}, #{sortOrder}) ")
+    @Insert("INSERT INTO product_images(productId, imageUrl, sortOrder, createTime, updateTime) VALUES(#{productId}, #{imageUrl}, #{sortOrder}, NOW(), NOW()) ")
     int insert(ProductImage productImage);
     
     // 批量插入商品图片
-    @Insert("<script>INSERT INTO product_images(productId, imageUrl, sortOrder) VALUES <foreach item='item' collection='list' separator=','>(#{item.productId}, #{item.imageUrl}, #{item.sortOrder})</foreach></script>")
+    @Insert("<script>INSERT INTO product_images(productId, imageUrl, sortOrder, createTime, updateTime) VALUES <foreach item='item' collection='list' separator=','>(#{item.productId}, #{item.imageUrl}, #{item.sortOrder}, NOW(), NOW())</foreach></script>")
     int batchInsert(List<ProductImage> productImages);
     
     // 更新商品图片
-    @Update("UPDATE product_images SET imageUrl = #{imageUrl}, sortOrder = #{sortOrder} WHERE id = #{id}")
+    @Update("UPDATE product_images SET imageUrl = #{imageUrl}, sortOrder = #{sortOrder}, updateTime = NOW() WHERE id = #{id}")
     int update(ProductImage productImage);
     
     // 更新图片排序
-    @Update("UPDATE product_images SET sortOrder = #{sortOrder} WHERE id = #{id}")
+    @Update("UPDATE product_images SET sortOrder = #{sortOrder}, updateTime = NOW() WHERE id = #{id}")
     int updateSort(Long id, Integer sortOrder);
     
     // 根据ID删除图片

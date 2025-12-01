@@ -30,19 +30,19 @@ public interface ProductSpecMapper extends BaseMapper<ProductSpec> {
     ProductSpec findByProductIdAndSpec(Long productId, String color, String size);
     
     // 插入商品规格
-    @Insert("INSERT INTO product_specs(productId, name, price, stock, color, size) VALUES(#{productId}, #{name}, #{price}, #{stock}, #{color}, #{size})")
+    @Insert("INSERT INTO product_specs(productId, name, price, stock, color, size, createTime, updateTime) VALUES(#{productId}, #{name}, #{price}, #{stock}, #{color}, #{size}, NOW(), NOW())")
     int insert(ProductSpec productSpec);
     
     // 批量插入商品规格
-    @Insert("<script>INSERT INTO product_specs(productId, name, price, stock, color, size) VALUES <foreach item='item' collection='list' separator=','>(#{item.productId}, #{item.name}, #{item.price}, #{item.stock}, #{item.color}, #{item.size})</foreach></script>")
+    @Insert("<script>INSERT INTO product_specs(productId, name, price, stock, color, size, createTime, updateTime) VALUES <foreach item='item' collection='list' separator=','>(#{item.productId}, #{item.name}, #{item.price}, #{item.stock}, #{item.color}, #{item.size}, NOW(), NOW())</foreach></script>")
     int batchInsert(List<ProductSpec> productSpecs);
     
     // 更新商品规格
-    @Update("UPDATE product_specs SET name = #{name}, price = #{price}, stock = #{stock}, color = #{color}, size = #{size} WHERE id = #{id}")
+    @Update("UPDATE product_specs SET name = #{name}, price = #{price}, stock = #{stock}, color = #{color}, size = #{size}, updateTime = NOW() WHERE id = #{id}")
     int update(ProductSpec productSpec);
     
     // 更新规格库存
-    @Update("UPDATE product_specs SET stock = stock - #{quantity} WHERE id = #{id} AND stock >= #{quantity}")
+    @Update("UPDATE product_specs SET stock = stock - #{quantity}, updateTime = NOW() WHERE id = #{id} AND stock >= #{quantity}")
     int updateStock(@Param("id") Long id, @Param("quantity") Integer quantity);
     
     // 删除商品规格

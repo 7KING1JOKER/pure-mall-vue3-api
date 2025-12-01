@@ -25,7 +25,9 @@ public class ProductSpecController {
     @GetMapping("/product/{productId}")
     @Operation(summary = "获取商品规格列表")
     public Response<List<ProductSpec>> getProductSpecs(@PathVariable Long productId) {
-        List<ProductSpec> productSpecs = productSpecService.getProductSpecsByProductId(productId);
+        // 目前只有默认规格，所以直接返回默认规格列表
+        Long defaultSpecId = 1L;
+        List<ProductSpec> productSpecs = productSpecService.getProductSpecsByProductId(defaultSpecId);
         return Response.success(productSpecs);
     }
 }

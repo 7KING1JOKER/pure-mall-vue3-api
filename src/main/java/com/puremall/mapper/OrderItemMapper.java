@@ -33,15 +33,15 @@ public interface OrderItemMapper extends BaseMapper<OrderItem> {
     List<OrderItem> findByUserId(Long userId);
     
     // 插入订单项
-    @Insert("INSERT INTO order_items(orderId, productId, specId, productName, specName, price, quantity, imageUrl, createTime) VALUES(#{orderId}, #{productId}, #{specId}, #{productName}, #{specName}, #{price}, #{quantity}, #{imageUrl}, NOW())")
+    @Insert("INSERT INTO order_items(orderId, productId, specId, name, price, quantity, imageUrl, selected, createTime) VALUES(#{orderId}, #{productId}, #{specId}, #{name}, #{price}, #{quantity}, #{imageUrl}, #{selected}, NOW())")
     int insert(OrderItem orderItem);
     
     // 批量插入订单项
-    @Insert("<script>INSERT INTO order_items(orderId, productId, specId, productName, specName, price, quantity, imageUrl, createTime) VALUES <foreach item='item' collection='list' separator=','>(#{item.orderId}, #{item.productId}, #{item.specId}, #{item.productName}, #{item.specName}, #{item.price}, #{item.quantity}, #{item.imageUrl}, NOW())</foreach></script>")
+    @Insert("<script>INSERT INTO order_items(orderId, productId, specId, name, price, quantity, imageUrl, selected, createTime) VALUES <foreach item='item' collection='list' separator=','>(#{item.orderId}, #{item.productId}, #{item.specId}, #{item.name}, #{item.price}, #{item.quantity}, #{item.imageUrl}, #{item.selected}, NOW())</foreach></script>")
     int batchInsert(List<OrderItem> orderItems);
     
     // 更新订单项
-    @Update("UPDATE order_items SET productName = #{productName}, specName = #{specName}, price = #{price}, quantity = #{quantity}, imageUrl = #{imageUrl} WHERE id = #{id}")
+    @Update("UPDATE order_items SET name = #{name}, price = #{price}, quantity = #{quantity}, imageUrl = #{imageUrl}, selected = #{selected} WHERE id = #{id}")
     int update(OrderItem orderItem);
     
     // 根据ID删除订单项
@@ -49,26 +49,26 @@ public interface OrderItemMapper extends BaseMapper<OrderItem> {
     int deleteById(Long id);
     
     // 根据订单ID删除所有订单项
-    @Delete("DELETE FROM order_items WHERE order_id = #{orderId}")
+    @Delete("DELETE FROM order_items WHERE orderId = #{orderId}")
     int deleteByOrderId(Long orderId);
     
     // 根据商品ID删除所有订单项
-    @Delete("DELETE FROM order_items WHERE product_id = #{productId}")
+    @Delete("DELETE FROM order_items WHERE productId = #{productId}")
     int deleteByProductId(Long productId);
     
     // 查询订单项总数
-    @Select("SELECT COUNT(*) FROM order_items WHERE order_id = #{orderId}")
+    @Select("SELECT COUNT(*) FROM order_items WHERE orderId = #{orderId}")
     int countByOrderId(Long orderId);
     
     // 查询订单商品总数量
-    @Select("SELECT SUM(quantity) FROM order_items WHERE order_id = #{orderId}")
+    @Select("SELECT SUM(quantity) FROM order_items WHERE orderId = #{orderId}")
     Integer getTotalQuantityByOrderId(Long orderId);
     
     // 查询商品销售数量
-    @Select("SELECT SUM(quantity) FROM order_items WHERE product_id = #{productId}")
+    @Select("SELECT SUM(quantity) FROM order_items WHERE productId = #{productId}")
     Integer getSalesCountByProductId(Long productId);
     
     // 查询热销商品（按销量排序）
-    @Select("SELECT product_id, SUM(quantity) as sales_count FROM order_items GROUP BY product_id ORDER BY sales_count DESC LIMIT #{limit}")
+    @Select("SELECT productId, SUM(quantity) as salesCount FROM order_items GROUP BY productId ORDER BY salesCount DESC LIMIT #{limit}")
     List<Object> findHotProducts(Integer limit);
 }

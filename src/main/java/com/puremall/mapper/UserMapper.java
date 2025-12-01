@@ -32,15 +32,15 @@ public interface UserMapper extends BaseMapper<User> {
     User findById(Long id);
     
     // 插入用户
-    @Insert("INSERT INTO users(username, password, email, phone, status, created_at, updated_at) VALUES(#{username}, #{password}, #{email}, #{phone}, #{status}, NOW(), NOW())")
+    @Insert("INSERT INTO users(username, password, email, phone, status, createTime, updateTime) VALUES(#{username}, #{password}, #{email}, #{phone}, #{status}, NOW(), NOW())")
     int insert(User user);
     
     // 更新用户信息
-    @Update("UPDATE users SET password = #{password}, email = #{email}, phone = #{phone}, status = #{status}, updated_at = NOW() WHERE id = #{id}")
+    @Update("UPDATE users SET password = #{password}, email = #{email}, phone = #{phone}, status = #{status}, updateTime = NOW() WHERE id = #{id}")
     int update(User user);
     
     // 更新用户状态
-    @Update("UPDATE users SET status = #{status}, updated_at = NOW() WHERE id = #{id}")
+    @Update("UPDATE users SET status = #{status}, updateTime = NOW() WHERE id = #{id}")
     int updateStatus(Long id, Integer status);
     
     // 根据ID删除用户

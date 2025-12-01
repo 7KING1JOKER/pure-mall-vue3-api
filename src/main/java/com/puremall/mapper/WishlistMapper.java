@@ -16,7 +16,7 @@ import org.apache.ibatis.annotations.Delete;
 @Mapper
 public interface WishlistMapper extends BaseMapper<Wishlist> {
     // 根据用户ID查询收藏夹
-    @Select("SELECT * FROM wishlists WHERE user_id = #{userId}")
+    @Select("SELECT * FROM wishlists WHERE userId = #{userId}")
     Wishlist findByUserId(Long userId);
     
     // 根据ID查询收藏夹
@@ -24,11 +24,11 @@ public interface WishlistMapper extends BaseMapper<Wishlist> {
     Wishlist findById(Long id);
     
     // 插入收藏夹
-    @Insert("INSERT INTO wishlists(user_id, create_time) VALUES(#{userId}, NOW())")
+    @Insert("INSERT INTO wishlists(userId, createTime, updateTime) VALUES(#{userId}, NOW(), NOW())")
     int insert(Wishlist wishlist);
     
-   // 更新收藏夹
-    @Update("UPDATE wishlists SET user_id = #{userId}, create_time = #{createTime} WHERE id = #{id}")
+    // 更新收藏夹
+    @Update("UPDATE wishlists SET userId = #{userId}, createTime = #{createTime}, updateTime = NOW() WHERE id = #{id}")
     int update(Wishlist wishlist);
     
     // 删除收藏夹
@@ -40,6 +40,6 @@ public interface WishlistMapper extends BaseMapper<Wishlist> {
     int deleteByUserId(Long userId);
     
     // 检查用户是否已有收藏夹
-    @Select("SELECT COUNT(*) FROM wishlists WHERE user_id = #{userId}")
+    @Select("SELECT COUNT(*) FROM wishlists WHERE userId = #{userId}")
     int existsByUserId(Long userId);
 }

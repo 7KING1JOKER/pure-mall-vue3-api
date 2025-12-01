@@ -24,6 +24,7 @@ public class Product implements Serializable {
     private BigDecimal price;
     private BigDecimal originalPrice;
     private Integer sales;
+    private Integer stock;
     private String categoryLabel;
     private String detail;
     private Integer status;
@@ -80,6 +81,14 @@ public class Product implements Serializable {
 
     public void setSales(Integer sales) {
         this.sales = sales;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 
     public String getCategoryLabel() {

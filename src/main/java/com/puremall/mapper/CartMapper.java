@@ -16,7 +16,7 @@ import org.apache.ibatis.annotations.Delete;
 @Mapper
 public interface CartMapper extends BaseMapper<Cart> {
     // 根据用户ID查询购物车
-    @Select("SELECT * FROM carts WHERE user_id = #{userId}")
+    @Select("SELECT * FROM carts WHERE userId = #{userId}")
     Cart findByUserId(Long userId);
     
     // 根据ID查询购物车
@@ -24,26 +24,26 @@ public interface CartMapper extends BaseMapper<Cart> {
     Cart findById(Long id);
     
     // 插入购物车
-    @Insert("INSERT INTO carts(user_id, created_at, updated_at) VALUES(#{userId}, NOW(), NOW())")
+    @Insert("INSERT INTO carts(userId, createTime, updateTime) VALUES(#{userId}, NOW(), NOW())")
     int insert(Cart cart);
     
     // 更新购物车
-    @Update("UPDATE carts SET updated_at = NOW() WHERE id = #{id}")
+    @Update("UPDATE carts SET updateTime = NOW() WHERE id = #{id}")
     int update(Cart cart);
     
-    // 更新购物车总金额
-    @Update("UPDATE carts SET total_amount = #{totalAmount}, updated_at = NOW() WHERE id = #{id}")
-    int updateTotalAmount(Long id, Double totalAmount);
+    // 更新购物车
+    @Update("UPDATE carts SET updateTime = NOW() WHERE id = #{id}")
+    int updateTotalAmount(Long id);
     
     // 根据ID删除购物车
     @Delete("DELETE FROM carts WHERE id = #{id}")
     int deleteById(Long id);
     
     // 根据用户ID删除购物车
-    @Delete("DELETE FROM carts WHERE user_id = #{userId}")
+    @Delete("DELETE FROM carts WHERE userId = #{userId}")
     int deleteByUserId(Long userId);
     
     // 检查用户是否已有购物车
-    @Select("SELECT COUNT(*) FROM carts WHERE user_id = #{userId}")
+    @Select("SELECT COUNT(*) FROM carts WHERE userId = #{userId}")
     int existsByUserId(Long userId);
 }
