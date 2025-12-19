@@ -1,12 +1,3 @@
--- 纯商城系统(Pure Mall)额外数据脚本
--- 基于现有的users、products、product_images和product_specs数据
-
--- 设置外键检查临时关闭，方便导入数据
-SET FOREIGN_KEY_CHECKS = 0;
-
--- 临时关闭外键检查以便顺利插入数据
-SET FOREIGN_KEY_CHECKS = 0;
-
 -- 为addresses表添加数据
 INSERT INTO addresses (userId, name, phone, province, city, district, street, postcode, detail, isDefault) VALUES
 (10001, '张三', '13800138000', '北京市', '北京市', '朝阳区', '建国路', '100022', '88号SOHO现代城B座2301室', TRUE),
@@ -16,9 +7,9 @@ INSERT INTO addresses (userId, name, phone, province, city, district, street, po
 (10001, '张三', '13800138000', '江苏省', '南京市', '鼓楼区', '中山路', '210008', '228号德基广场二期写字楼25层', FALSE);
 
 -- 为wishlists表添加数据（每个用户只能有一个收藏夹）
-INSERT INTO wishlists (userId) VALUES
-(10001),
-(10002);
+INSERT INTO wishlists (userId, cartId) VALUES
+(10001, 1),
+(10002, 2);
 
 -- 为wishlist_items表添加数据（每个收藏夹中的商品必须唯一）
 INSERT INTO wishlist_items (wishlistId, productId) VALUES
@@ -34,36 +25,36 @@ INSERT INTO carts (userId) VALUES
 (10002);
 
 -- 为cart_items表添加数据（同一个购物车中商品必须唯一）
-INSERT INTO cart_items (cartId, productId, quantity, selected) VALUES
-(1, 1001, 2, TRUE),   -- 用户1购物车中的商品1，数量2，已选中
-(1, 1002, 1, TRUE),   -- 用户1购物车中的商品2，数量1，已选中
-(1, 1003, 3, FALSE),  -- 用户1购物车中的商品3，数量3，未选中
-(2, 1004, 1, TRUE),   -- 用户2购物车中的商品4，数量1，已选中
-(2, 1005, 2, TRUE);   -- 用户2购物车中的商品5，数量2，已选中
+INSERT INTO cart_items (cartId, productId, quantity, selected, name, price) VALUES
+(1, 1001, 2, 1, '纯棉宽松短袖T恤', 99.0),   -- 用户1购物车中的商品1，数量2，已选中
+(1, 1002, 1, 1, '男士印花短袖T恤', 89.0),   -- 用户1购物车中的商品2，数量1，已选中
+(1, 1003, 3, 0, '女士修身短袖T恤', 109.0),  -- 用户1购物车中的商品3，数量3，未选中
+(2, 1004, 1, 1, '情侣装短袖T恤', 119.0),   -- 用户2购物车中的商品4，数量1，已选中
+(2, 1005, 2, 1, '商务休闲长袖衬衫', 199.0);   -- 用户2购物车中的商品5，数量2，已选中
 
 -- 为orders表添加数据
-INSERT INTO orders (userId, orderNumber, totalPrice, status, addressId, paymentMethod) VALUES
-(10001, 'ORD20230501001', 599.98, 3, 1, '在线支付'),  -- 用户1的订单，状态：已完成
-(10001, 'ORD20230501002', 299.99, 2, 2, '微信支付'),  -- 用户1的订单，状态：已发货
-(10002, 'ORD20230501003', 899.97, 1, 3, '支付宝'),    -- 用户2的订单，状态：已支付
-(10002, 'ORD20230501004', 199.99, 0, 4, '在线支付'),  -- 用户2的订单，状态：待支付
-(10001, 'ORD20230501005', 499.98, 1, 5, '微信支付');  -- 用户1的订单，状态：已支付
+INSERT INTO orders (userId, orderNumber, orderAmount, status, paymentMethod, receiverName, receiverPhone, receiverAddress) VALUES
+(10001, 'ORD20230501001', 599.98, 3, '在线支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室'),  -- 用户1的订单，状态：已完成
+(10001, 'ORD20230501002', 299.99, 2, '微信支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室'),  -- 用户1的订单，状态：已发货
+(10002, 'ORD20230501003', 899.97, 1, '支付宝', '李四', '13800138001', '广东省广州市天河区天河路385号太古汇商场3楼'),    -- 用户2的订单，状态：已支付
+(10002, 'ORD20230501004', 199.99, 0, '在线支付', '李四', '13800138001', '广东省广州市天河区天河路385号太古汇商场3楼'),  -- 用户2的订单，状态：待支付
+(10001, 'ORD20230501005', 499.98, 1, '微信支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室');  -- 用户1的订单，状态：已支付
 
 -- 为order_items表添加数据
-INSERT INTO order_items (orderId, productId, quantity, price) VALUES
-(1, 1001, 2, 199.99),  -- 订单1中的商品1，数量2，单价199.99
-(1, 1002, 1, 199.99),  -- 订单1中的商品2，数量1，单价199.99
-(2, 1003, 1, 299.99),  -- 订单2中的商品3，数量1，单价299.99
-(3, 1004, 3, 299.99),  -- 订单3中的商品4，数量3，单价299.99
-(4, 1005, 1, 199.99),  -- 订单4中的商品5，数量1，单价199.99
+INSERT INTO order_items (orderId, productId, quantity, price, name) VALUES
+(1, 1001, 2, 199.99, '纯棉宽松短袖T恤'),  -- 订单1中的商品1，数量2，单价199.99
+(1, 1002, 1, 199.99, '男士印花短袖T恤'),  -- 订单1中的商品2，数量1，单价199.99
+(2, 1003, 1, 299.99, '女士修身短袖T恤'),  -- 订单2中的商品3，数量1，单价299.99
+(3, 1004, 3, 299.99, '情侣装短袖T恤'),  -- 订单3中的商品4，数量3，单价299.99
+(4, 1005, 1, 199.99, '商务休闲长袖衬衫');  -- 订单4中的商品5，数量1，单价199.99
 
 -- 为product_reviews表添加数据
-INSERT INTO product_reviews (userId, productId, orderId, rating, comment) VALUES
-(10001, 1001, 1, 5, '商品质量非常好，物流也很快，很满意！'),
-(10001, 1002, 1, 4, '商品不错，就是包装有点简陋。'),
-(10001, 1003, 2, 5, '非常好用，值得购买！'),
-(10002, 1004, 3, 4, '质量不错，性价比高。'),
-(10001, 1001, 1, 5, '第二次购买了，依然满意！');
+INSERT INTO product_reviews (userId, productId, rating, content) VALUES
+(10001, 1001, 5, '商品质量非常好，物流也很快，很满意！'),
+(10001, 1002, 4, '商品不错，就是包装有点简陋。'),
+(10001, 1003, 5, '非常好用，值得购买！'),
+(10002, 1004, 4, '质量不错，性价比高。'),
+(10001, 1001, 5, '第二次购买了，依然满意！');
 
 -- 插入示例用户
 INSERT INTO users (id, username, password, email, phone, status) 
@@ -190,6 +181,4 @@ INSERT INTO product_specs (productId, name, price, stock, color, size) VALUES
 (1, '', 50, 100, '灰色', 'S'),
 (1, '', 60, 80, '灰色', 'M'),
 (1, '', 70, 90, '灰色', 'L'),
-(1, '', 80, 70, '灰色', 'XL'),
--- 恢复外键检查
-SET FOREIGN_KEY_CHECKS = 1;
+(1, '', 80, 70, '灰色', 'XL');

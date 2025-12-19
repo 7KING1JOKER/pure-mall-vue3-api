@@ -7,8 +7,8 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE COMMENT '邮箱',
     phone VARCHAR(20) UNIQUE COMMENT '手机号',
     avatar VARCHAR(255) COMMENT '头像URL',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    last_login DATETIME COMMENT '最后登录时间',
+    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    lastLogin DATETIME COMMENT '最后登录时间',
     status TINYINT DEFAULT 1 COMMENT '状态（1:正常，0:禁用）',
     INDEX idx_username (username),
     INDEX idx_phone (phone),
@@ -102,60 +102,39 @@ CREATE TABLE addresses (
     INDEX idx_isDefault (isDefault)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收货地址表';
 
--- 7. 收藏夹表 (wishlists)
-DROP TABLE IF EXISTS wishlists;
-CREATE TABLE wishlists (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '收藏夹ID',
-    userId BIGINT NOT NULL UNIQUE COMMENT '用户ID',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_userId (userId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏夹表';
-
--- 8. 收藏夹商品关联表 (wishlist_items)
+-- 7. 收藏夹商品项表 (wishlist_items)
 DROP TABLE IF EXISTS wishlist_items;
 CREATE TABLE wishlist_items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '关联ID',
-    wishlistId BIGINT NOT NULL COMMENT '收藏夹ID',
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '收藏夹商品项ID',
+    userId BIGINT NOT NULL COMMENT '用户ID',
     productId BIGINT NOT NULL COMMENT '商品ID',
     createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
-    UNIQUE KEY uk_wishlist_product (wishlistId, productId),
-    FOREIGN KEY (wishlistId) REFERENCES wishlists(id) ON DELETE CASCADE,
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    INDEX idx_wishlistId (wishlistId),
-    INDEX idx_productId (productId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏夹商品关联表';
-
--- 9. 购物车表 (carts)
-DROP TABLE IF EXISTS carts;
-CREATE TABLE carts (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '购物车ID',
-    userId BIGINT NOT NULL UNIQUE COMMENT '用户ID',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_user_product (userId, productId),
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_userId (userId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='购物车表';
+    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
+    INDEX idx_userId (userId),
+    INDEX idx_productId (productId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏夹商品项表';
 
--- 10. 购物车项表 (cart_items)
+-- 9. 购物车项表 (cart_items)
 DROP TABLE IF EXISTS cart_items;
 CREATE TABLE cart_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '购物车项ID',
-    cartId BIGINT NOT NULL COMMENT '购物车ID',
+    userId BIGINT NOT NULL COMMENT '用户ID',
     productId BIGINT NOT NULL COMMENT '商品ID',
-    specId BIGINT COMMENT '规格ID',
+    spec VARCHAR(255) COMMENT '规格描述',
     name VARCHAR(255) NOT NULL COMMENT '商品名称',
     imageUrl VARCHAR(500) COMMENT '商品图片URL',
     quantity INT NOT NULL DEFAULT 1 COMMENT '数量',
-    selected TINYINT DEFAULT 1 COMMENT '是否选中（1:选中，0:未选中）',
+    selected BOOLEAN DEFAULT TRUE COMMENT '是否选中（1:选中，0:未选中）',
     price DECIMAL(10, 2) NOT NULL COMMENT '单价',
     createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    UNIQUE KEY uk_cart_product_spec (cartId, productId, specId),
-    FOREIGN KEY (cartId) REFERENCES carts(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_user_product_spec (userId, productId, spec),
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (specId) REFERENCES product_specs(id) ON DELETE SET NULL,
-    INDEX idx_cartId (cartId),
+    INDEX idx_userId (userId),
     INDEX idx_productId (productId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='购物车商品项表';
 

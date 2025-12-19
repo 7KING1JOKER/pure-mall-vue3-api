@@ -16,24 +16,24 @@ import org.apache.ibatis.annotations.Delete;
 
 @Mapper
 public interface CartItemMapper extends BaseMapper<CartItem> {
-    // 根据购物车ID查询购物车项列表
-    @Select("SELECT * FROM cart_items WHERE cartId = #{cartId} ORDER BY createTime DESC")
-    List<CartItem> findByCartId(Long cartId);
-    
-    // 根据购物车ID、商品ID和规格ID查询购物车项
-    @Select("SELECT * FROM cart_items WHERE cartId = #{cartId} AND productId = #{productId} AND specId = #{specId}")
-    CartItem findByCartIdAndProductIdAndSpecId(Long cartId, Long productId, Long specId);
-    
     // 根据ID查询购物车项
     @Select("SELECT * FROM cart_items WHERE id = #{id}")
     CartItem findById(Long id);
     
-    // 根据用户ID查询购物车项（通过关联查询）
-    @Select("SELECT ci.* FROM cart_items ci JOIN carts c ON ci.cartId = c.id WHERE c.userId = #{userId} ORDER BY ci.createTime DESC")
+    // 根据用户ID查询购物车项
+    @Select("SELECT * FROM cart_items WHERE userId = #{userId} ORDER BY createTime DESC")
     List<CartItem> findByUserId(Long userId);
     
+    // 根据用户ID和商品ID查询购物车项
+    @Select("SELECT * FROM cart_items WHERE userId = #{userId} AND productId = #{productId}")
+    CartItem findByUserIdAndProductId(Long userId, Long productId);
+    
+    // 根据用户ID和商品ID、规格查询购物车项
+    @Select("SELECT * FROM cart_items WHERE userId = #{userId} AND productId = #{productId} AND spec = #{spec}")
+    CartItem findByUserIdAndProductIdAndSpec(Long userId, Long productId, String spec);
+    
     // 插入购物车项
-    @Insert("INSERT INTO cart_items(cartId, productId, specId, name, price, quantity, imageUrl, createTime, updateTime) VALUES(#{cartId}, #{productId}, #{specId}, #{name}, #{price}, #{quantity}, #{imageUrl}, NOW(), NOW())")
+    @Insert("INSERT INTO cart_items(userId, productId, spec, name, price, quantity, imageUrl, createTime, updateTime) VALUES(#{userId}, #{productId}, #{spec}, #{name}, #{price}, #{quantity}, #{imageUrl}, NOW(), NOW())")
     int insert(CartItem cartItem);
     
     // 更新购物车项
@@ -52,23 +52,35 @@ public interface CartItemMapper extends BaseMapper<CartItem> {
     @Delete("DELETE FROM cart_items WHERE id = #{id}")
     int deleteById(Long id);
     
-    // 根据购物车ID删除所有购物车项
-    @Delete("DELETE FROM cart_items WHERE cartId = #{cartId}")
-    int deleteByCartId(Long cartId);
+    // 根据用户ID删除所有购物车项
+    @Delete("DELETE FROM cart_items WHERE userId = #{userId}")
+    int deleteByUserId(Long userId);
     
-    // 根据购物车ID和商品ID删除购物车项
-    @Delete("DELETE FROM cart_items WHERE cartId = #{cartId} AND productId = #{productId}")
-    int deleteByCartIdAndProductId(Long cartId, Long productId);
+    // 根据用户ID和商品ID删除购物车项
+    @Delete("DELETE FROM cart_items WHERE userId = #{userId} AND productId = #{productId}")
+    int deleteByUserIdAndProductId(Long userId, Long productId);
+    
+    // 根据用户ID和商品ID、规格删除购物车项
+    @Delete("DELETE FROM cart_items WHERE userId = #{userId} AND productId = #{productId} AND spec = #{spec}")
+    int deleteByUserIdAndProductIdAndSpec(Long userId, Long productId, String spec);
     
     // 查询购物车项总数
-    @Select("SELECT COUNT(*) FROM cart_items WHERE cartId = #{cartId}")
-    int countByCartId(Long cartId);
+    @Select("SELECT COUNT(*) FROM cart_items WHERE userId = #{userId}")
+    int countByUserId(Long userId);
     
     // 查询购物车商品总数量
-    @Select("SELECT SUM(quantity) FROM cart_items WHERE cartId = #{cartId}")
-    Integer getTotalQuantityByCartId(Long cartId);
+    @Select("SELECT SUM(quantity) FROM cart_items WHERE userId = #{userId}")
+    Integer getTotalQuantityByUserId(Long userId);
     
     // 查询购物车总金额
-    @Select("SELECT SUM(price * quantity) FROM cart_items WHERE cartId = #{cartId}")
-    Double getTotalAmountByCartId(Long cartId);
+    @Select("SELECT SUM(price * quantity) FROM cart_items WHERE userId = #{userId}")
+    Double getTotalAmountByUserId(Long userId);
+    
+    // 查询用户选中的购物车项
+    @Select("SELECT * FROM cart_items WHERE userId = #{userId} AND selected = 1 ORDER BY createTime DESC")
+    List<CartItem> findSelectedByUserId(Long userId);
+    
+    // 根据用户ID删除选中的购物车项
+    @Delete("DELETE FROM cart_items WHERE userId = #{userId} AND selected = 1")
+    int deleteSelectedByUserId(Long userId);
 }

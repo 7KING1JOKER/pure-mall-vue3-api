@@ -6,12 +6,12 @@ package com.puremall.entity;
  */
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @TableName("products")
 public class Product implements Serializable {
@@ -31,8 +31,8 @@ public class Product implements Serializable {
     private Date createTime;
     private Date updateTime;
     
-    // 商品图片列表
-    private List<ProductImage> images;
+    @TableField(exist = false)
+    private String image; // 商品第一张图片URL，不存储在数据库中
 
     // getter and setter
     public Long getId() {
@@ -131,11 +131,11 @@ public class Product implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public List<ProductImage> getImages() {
-        return images;
+    public String getImage() {
+        return image;
     }
 
-    public void setImages(List<ProductImage> images) {
-        this.images = images;
+    public void setImage(String image) {
+        this.image = image;
     }
 }

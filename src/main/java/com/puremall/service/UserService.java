@@ -13,9 +13,10 @@ import java.util.Map;
 public interface UserService extends IService<User> {
     User register(User user);
     User login(User user);
-    User getUserInfo(Long userId);
-    User updateUserInfo(Long userId, User user);
-    void logout(Long userId);
+    Long getUserIdByUsername(String username);
+    User getUserInfo(String username);
+    User updateUserInfo(String username, User user);
+    void logout(String username);
     Map<String, Object> changePassword(Long userId, String oldPassword, String newPassword);
     Map<String, String> uploadAvatar(Long userId, MultipartFile file);
     boolean checkUsernameAvailability(String username);

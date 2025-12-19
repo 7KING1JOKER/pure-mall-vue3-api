@@ -30,14 +30,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userMapper.findByUsername(user.getUsername()) != null) {
             throw new BusinessException("用户名已存在");
         }
-        // 检查邮箱是否已存在
-        if (userMapper.findByEmail(user.getEmail()) != null) {
-            throw new BusinessException("邮箱已存在");
-        }
-        // 检查手机号是否已存在
-        if (userMapper.findByPhone(user.getPhone()) != null) {
-            throw new BusinessException("手机号已存在");
-        }
+
         // 加密密码
         user.setPassword(PasswordUtils.encodePassword(user.getPassword()));
         // 保存用户
@@ -49,14 +42,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public User login(User user) {
+        if(userMapper.findByUsername(user.getUsername()) == null) {
+            throw new BusinessException("用户名未注册");
+        }
+
         // 根据用户名查询用户
         User existingUser = userMapper.findByUsername(user.getUsername());
-        if (existingUser == null) {
-            throw new BusinessException("用户名或密码错误");
-        }
+
+        System.out.println("existingUser: " + existingUser.getPassword());
+        System.out.println("user: " + user.getPassword());
+
         // 验证密码
         if (!PasswordUtils.matchesPassword(user.getPassword(), existingUser.getPassword())) {
-            throw new BusinessException("用户名或密码错误");
+            throw new BusinessException("密码错误");
         }
         // 隐藏密码
         existingUser.setPassword(null);
@@ -64,8 +62,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public User getUserInfo(Long userId) {
-        User user = userMapper.selectById(userId);
+    public User getUserInfo(String username) {
+        User user = userMapper.findByUsername(username);
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
@@ -75,8 +73,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public User updateUserInfo(Long userId, User user) {
-        User existingUser = userMapper.selectById(userId);
+    public User updateUserInfo(String username, User user) {
+        User existingUser = userMapper.findByUsername(username);
         if (existingUser == null) {
             throw new BusinessException("用户不存在");
         }
@@ -87,11 +85,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user.getPhone() != null) {
             existingUser.setPhone(user.getPhone());
         }
-        if (user.getAvatar() != null) {
-            existingUser.setAvatar(user.getAvatar());
+        if (user.getSex() != null) {
+            existingUser.setSex(user.getSex());
         }
-        // 注释掉nickname设置，因为User实体类中可能没有这个属性
-        // existingUser.setNickname(user.getNickname());
+        if (user.getBirthday() != null) {
+            existingUser.setBirthday(user.getBirthday());
+        }
+        
         userMapper.updateById(existingUser);
         // 隐藏密码
         existingUser.setPassword(null);
@@ -99,8 +99,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public void logout(Long userId) {
+    public void logout(String username) {
         // JWT令牌过期处理由前端负责，后端无需特殊处理
+
     }
     
     @Override
@@ -155,6 +156,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return result;
     }
     
+    @Override
+    public Long getUserIdByUsername(String username) {
+        return userMapper.getUserIdByUsername(username);
+    }
+
     @Override
     public boolean checkUsernameAvailability(String username) {
         return userMapper.findByUsername(username) == null;

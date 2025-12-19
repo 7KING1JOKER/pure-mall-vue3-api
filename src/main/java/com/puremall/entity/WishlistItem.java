@@ -17,7 +17,7 @@ public class WishlistItem implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-    private Long wishlistId;
+    private Long userId;
     private Long productId;
     private Date createTime;
 
@@ -30,12 +30,12 @@ public class WishlistItem implements Serializable {
         this.id = id;
     }
 
-    public Long getWishlistId() {
-        return wishlistId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setWishlistId(Long wishlistId) {
-        this.wishlistId = wishlistId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Long getProductId() {

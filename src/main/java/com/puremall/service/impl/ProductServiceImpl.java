@@ -6,9 +6,7 @@ package com.puremall.service.impl;
  */
 
 import com.puremall.entity.Product;
-import com.puremall.entity.ProductImage;
 import com.puremall.mapper.ProductMapper;
-import com.puremall.mapper.ProductImageMapper;
 import com.puremall.service.ProductService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -24,12 +22,16 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Autowired
     private ProductMapper productMapper;
     
-    @Autowired
-    private ProductImageMapper productImageMapper;
+    // @Autowired
+    // private ProductImageMapper productImageMapper;
     
+    @Override
+    public List<Product> selectAllProducts() {
+        return productMapper.selectAllProducts();
+    }
 
     @Override
-    public IPage<Product> getProductPage(Integer page, Integer size, Long categoryId, String keyword) {
+    public IPage<Product> getProductPage(Integer page, Integer size, String categoryLabel) {
         Page<Product> productPage = new Page<>(page, size);
         QueryWrapper<Product> queryWrapper = new QueryWrapper<>();
         
@@ -37,32 +39,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         queryWrapper.eq("status", 1);
         
         // 分类过滤
-        if (categoryId != null) {
-            queryWrapper.eq("category_id", categoryId);
-        }
-        
-        // 关键词搜索
-        if (keyword != null && !keyword.isEmpty()) {
-            queryWrapper.like("name", keyword).or().like("brief", keyword);
+        if (categoryLabel != null) {
+            queryWrapper.eq("categoryLabel", categoryLabel);
         }
         
         // 默认排序
-        queryWrapper.orderByDesc("create_time");
+        queryWrapper.orderByDesc("createTime");
         
         IPage<Product> resultPage = productMapper.selectPage(productPage, queryWrapper);
-        
-        // 为每个商品加载第一张图片作为封面图
-        for (Product product : resultPage.getRecords()) {
-            List<ProductImage> images = productImageMapper.selectList(
-                new QueryWrapper<ProductImage>()
-                    .eq("product_id", product.getId())
-                    .orderByAsc("sort")
-                    .last("LIMIT 1")
-            );
-            if (!images.isEmpty()) {
-                product.setImages(images);
-            }
-        }
         
         return resultPage;
     }
@@ -70,49 +54,20 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Override
     public Product getProductById(Long productId) {
         Product product = productMapper.selectById(productId);
-        if (product != null) {
-            // 加载商品图片
-            List<ProductImage> images = productImageMapper.selectList(
-                new QueryWrapper<ProductImage>()
-                    .eq("product_id", productId)
-                    .orderByAsc("sort")
-            );
-            product.setImages(images);
-            
-            // 加载商品规格（暂时注释掉，因为未使用）
-            // List<ProductSpec> specs = productSpecMapper.selectList(
-            //     new QueryWrapper<ProductSpec>()
-            //         .eq("product_id", productId)
-            // );
-            // 如果Product实体类支持设置specs，可以添加：product.setSpecs(specs);
-        }
+        // 不再设置images属性，直接通过productImageMapper查询
         return product;
     }
 
     @Override
-    public List<Product> getProductsByCategory(Long categoryId) {
+    public List<Product> getProductsByCategory(String categoryLabel) {
         List<Product> products = productMapper.selectList(
             new QueryWrapper<Product>()
-                .eq("category_id", categoryId)
+                .eq("categoryLabel", categoryLabel)
                 .eq("status", 1)
-                .orderByDesc("create_time")
+                .orderByDesc("createTime")
         );
-        
-        // 为每个商品加载第一张图片
-        for (Product product : products) {
-            List<ProductImage> images = productImageMapper.selectList(
-                new QueryWrapper<ProductImage>()
-                    .eq("product_id", product.getId())
-                    .orderByAsc("sort")
-                    .last("LIMIT 1")
-            );
-            if (!images.isEmpty()) {
-                product.setImages(images);
-            }
-        }
         
         return products;
     }
-    
 
 }

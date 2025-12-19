@@ -18,7 +18,7 @@ public class ProductImage implements Serializable {
     private Long id;
     private Long productId;
     private String imageUrl;
-    private Integer sort;
+    private Integer sortOrder;
 
     // getter and setter
     public Long getId() {
@@ -45,11 +45,11 @@ public class ProductImage implements Serializable {
         this.imageUrl = imageUrl;
     }
 
-    public Integer getSort() {
-        return sort;
+    public Integer getSortOrder() {
+        return sortOrder;
     }
 
-    public void setSort(Integer sort) {
-        this.sort = sort;
+    public void setSortOrder(Integer sortOrder) {
+        this.sortOrder = sortOrder;
     }
 }

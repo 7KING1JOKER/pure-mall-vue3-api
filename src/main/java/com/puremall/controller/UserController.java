@@ -24,6 +24,15 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @GetMapping("/getUserId")
+    @Operation(summary = "根据用户名获取用户ID")
+    public Response<Map<String, Long>> getUserIdByUsername(@RequestParam String username) {
+        Long userId = userService.getUserIdByUsername(username);
+        Map<String, Long> response = new HashMap<>();
+        response.put("userId", userId);
+        return Response.success(response);
+    }
+    
     @PostMapping("/register")
     @Operation(summary = "用户注册")
     public Response<User> register(@RequestBody User user) {
@@ -38,24 +47,24 @@ public class UserController {
         return Response.success(loggedInUser);
     }
 
-    @GetMapping("/info")
+    @GetMapping("/getInfo")
     @Operation(summary = "获取用户信息")
-    public Response<User> getUserInfo(@RequestParam Long userId) {
-        User user = userService.getUserInfo(userId);
+    public Response<User> getUserInfo(@RequestParam String username) {
+        User user = userService.getUserInfo(username);
         return Response.success(user);
     }
 
-    @PutMapping("/info")
+    @PutMapping("/updateInfo")
     @Operation(summary = "更新用户信息")
-    public Response<User> updateUserInfo(@RequestParam Long userId, @RequestBody User user) {
-        User updatedUser = userService.updateUserInfo(userId, user);
+    public Response<User> updateUserInfo(@RequestParam String username, @RequestBody User user) {
+        User updatedUser = userService.updateUserInfo(username, user);
         return Response.success(updatedUser);
     }
 
     @PostMapping("/logout")
     @Operation(summary = "用户登出")
-    public Response<Void> logout(@RequestParam Long userId) {
-        userService.logout(userId);
+    public Response<Void> logout(@RequestParam String username) {
+        userService.logout(username);
         return Response.success(null);
     }
     

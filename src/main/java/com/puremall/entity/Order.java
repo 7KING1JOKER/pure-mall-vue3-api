@@ -36,9 +36,9 @@ public class Order implements Serializable {
     private Date createTime;
     private Date updateTime;
     
-    // 非数据库字段，用于关联订单项
+    // 非数据库字段，用于关联购物车项
     @TableField(exist = false)
-    private List<OrderItem> orderItems;
+    private List<CartItem> orderItems;
 
     // getter and setter
     public Long getId() {
@@ -169,11 +169,11 @@ public class Order implements Serializable {
         this.updateTime = updateTime;
     }
     
-    public List<OrderItem> getOrderItems() {
+    public List<CartItem> getOrderItems() {
         return orderItems;
     }
     
-    public void setOrderItems(List<OrderItem> orderItems) {
+    public void setOrderItems(List<CartItem> orderItems) {
         this.orderItems = orderItems;
     }
 }

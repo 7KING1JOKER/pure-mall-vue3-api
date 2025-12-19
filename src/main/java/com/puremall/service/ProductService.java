@@ -11,7 +11,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.util.List;
 
 public interface ProductService extends IService<Product> {
-    IPage<Product> getProductPage(Integer page, Integer size, Long categoryId, String keyword);
+    IPage<Product> getProductPage(Integer page, Integer size, String categoryLabel);
     Product getProductById(Long productId);
-    List<Product> getProductsByCategory(Long categoryId);
+    List<Product> getProductsByCategory(String categoryLabel);
+    List<Product> selectAllProducts();
 }

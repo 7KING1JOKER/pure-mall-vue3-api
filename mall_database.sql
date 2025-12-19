@@ -25,9 +25,11 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL COMMENT '密码（加密存储）',
     email VARCHAR(100) UNIQUE COMMENT '邮箱',
     phone VARCHAR(20) UNIQUE COMMENT '手机号',
+    sex ENUM('男', '女', '未知') DEFAULT '未知' COMMENT '性别',
+    birthday VARCHAR(12) COMMENT '出生日期',
     avatar VARCHAR(255) COMMENT '头像URL',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    last_login DATETIME COMMENT '最后登录时间',
+    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    lastLogin DATETIME COMMENT '最后登录时间',
     status TINYINT DEFAULT 1 COMMENT '状态（1:正常，0:禁用）',
     INDEX idx_username (username),
     INDEX idx_phone (phone),
@@ -121,64 +123,43 @@ CREATE TABLE addresses (
     INDEX idx_isDefault (isDefault)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收货地址表';
 
--- 7. 收藏夹表 (wishlists)
-DROP TABLE IF EXISTS wishlists;
-CREATE TABLE wishlists (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '收藏夹ID',
-    userId BIGINT NOT NULL UNIQUE COMMENT '用户ID',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_userId (userId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏夹表';
 
--- 8. 收藏夹商品关联表 (wishlist_items)
+-- 7. 收藏夹商品项表 (wishlist_items)
 DROP TABLE IF EXISTS wishlist_items;
 CREATE TABLE wishlist_items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '关联ID',
-    wishlistId BIGINT NOT NULL COMMENT '收藏夹ID',
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '收藏夹商品项ID',
+    userId BIGINT NOT NULL COMMENT '用户ID',
     productId BIGINT NOT NULL COMMENT '商品ID',
     createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '添加时间',
-    UNIQUE KEY uk_wishlist_product (wishlistId, productId),
-    FOREIGN KEY (wishlistId) REFERENCES wishlists(id) ON DELETE CASCADE,
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    INDEX idx_wishlistId (wishlistId),
-    INDEX idx_productId (productId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏夹商品关联表';
-
--- 9. 购物车表 (carts)
-DROP TABLE IF EXISTS carts;
-CREATE TABLE carts (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '购物车ID',
-    userId BIGINT NOT NULL UNIQUE COMMENT '用户ID',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_user_product (userId, productId),
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_userId (userId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='购物车表';
+    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
+    INDEX idx_userId (userId),
+    INDEX idx_productId (productId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收藏夹商品项表';
 
--- 10. 购物车项表 (cart_items)
+-- 8. 购物车项表 (cart_items)
 DROP TABLE IF EXISTS cart_items;
 CREATE TABLE cart_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '购物车项ID',
-    cartId BIGINT NOT NULL COMMENT '购物车ID',
+    userId BIGINT NOT NULL COMMENT '用户ID',
     productId BIGINT NOT NULL COMMENT '商品ID',
-    specId BIGINT COMMENT '规格ID',
+    spec VARCHAR(255) COMMENT '规格描述',
     name VARCHAR(255) NOT NULL COMMENT '商品名称',
     imageUrl VARCHAR(500) COMMENT '商品图片URL',
     quantity INT NOT NULL DEFAULT 1 COMMENT '数量',
-    selected TINYINT DEFAULT 1 COMMENT '是否选中（1:选中，0:未选中）',
+    selected BOOLEAN DEFAULT TRUE COMMENT '是否选中（1:选中，0:未选中）',
     price DECIMAL(10, 2) NOT NULL COMMENT '单价',
     createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    UNIQUE KEY uk_cart_product_spec (cartId, productId, specId),
-    FOREIGN KEY (cartId) REFERENCES carts(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_user_product_spec (userId, productId, spec),
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (specId) REFERENCES product_specs(id) ON DELETE SET NULL,
-    INDEX idx_cartId (cartId),
+    INDEX idx_userId (userId),
     INDEX idx_productId (productId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='购物车商品项表';
 
--- 11. 订单表 (orders)
+-- 9. 订单表 (orders)
 DROP TABLE IF EXISTS orders;
 CREATE TABLE orders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '订单ID',
@@ -204,7 +185,7 @@ CREATE TABLE orders (
     INDEX idx_orderTime (orderTime)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单表';
 
--- 12. 订单项表 (order_items)
+-- 10. 订单项表 (order_items)
 DROP TABLE IF EXISTS order_items;
 CREATE TABLE order_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '订单项ID',
@@ -227,45 +208,35 @@ CREATE TABLE order_items (
 
 -- 为addresses表添加数据
 INSERT INTO addresses (userId, name, phone, province, city, district, street, postcode, detail, isDefault) VALUES
-(10001, '张三', '13800138000', '北京市', '北京市', '朝阳区', '建国路', '100022', '88号SOHO现代城B座2301室', TRUE),
-(10001, '张三', '13800138000', '上海市', '上海市', '浦东新区', '张江高科技园区', '201203', '博云路2号浦软大厦10层', FALSE),
+(10003, '张三', '13800138000', '北京市', '北京市', '朝阳区', '建国路', '100022', '88号SOHO现代城B座2301室', TRUE),
+(10003, '张三', '13800138000', '上海市', '上海市', '浦东新区', '张江高科技园区', '201203', '博云路2号浦软大厦10层', FALSE),
 (10002, '李四', '13800138001', '广东省', '广州市', '天河区', '天河路', '510620', '385号太古汇商场3楼', TRUE),
 (10002, '李四', '13800138001', '广东省', '深圳市', '南山区', '科技园', '518057', '高新南一道8号创维大厦A座15楼', FALSE),
 (10001, '张三', '13800138000', '江苏省', '南京市', '鼓楼区', '中山路', '210008', '228号德基广场二期写字楼25层', FALSE);
 
--- 为wishlists表添加数据（每个用户只能有一个收藏夹）
-INSERT INTO wishlists (userId) VALUES
-(10001),
-(10002);
-
 -- 为wishlist_items表添加数据（每个收藏夹中的商品必须唯一）
-INSERT INTO wishlist_items (wishlistId, productId) VALUES
-(1, 1001),  -- 用户1收藏的商品1
-(1, 1003),  -- 用户1收藏的商品3
-(1, 1005),  -- 用户1收藏的商品5
-(2, 1002),  -- 用户2收藏的商品2
-(2, 1004);  -- 用户2收藏的商品4
-
--- 为carts表添加数据（每个用户只能有一个购物车）
-INSERT INTO carts (userId) VALUES
-(10001),
-(10002);
+INSERT INTO wishlist_items (userId, productId) VALUES
+(10001, 1001),  -- 用户10001收藏的商品1
+(10001, 1003),  -- 用户10001收藏的商品3
+(10001, 1005),  -- 用户10001收藏的商品5
+(10002, 1002),  -- 用户10002收藏的商品2
+(10002, 1004);  -- 用户10002收藏的商品4
 
 -- 为cart_items表添加数据（同一个购物车中商品必须唯一）
-INSERT INTO cart_items (cartId, productId, quantity, selected, name, price) VALUES
-(1, 1001, 2, 1, '纯棉宽松短袖T恤', 99.0),   -- 用户1购物车中的商品1，数量2，已选中
-(1, 1002, 1, 1, '男士印花短袖T恤', 89.0),   -- 用户1购物车中的商品2，数量1，已选中
-(1, 1003, 3, 0, '女士修身短袖T恤', 109.0),  -- 用户1购物车中的商品3，数量3，未选中
-(2, 1004, 1, 1, '情侣装短袖T恤', 119.0),   -- 用户2购物车中的商品4，数量1，已选中
-(2, 1005, 2, 1, '商务休闲长袖衬衫', 199.0);   -- 用户2购物车中的商品5，数量2，已选中
+INSERT INTO cart_items (id, userId, productId, quantity, selected, name, price) VALUES
+(1, 10001, 1001, 2, 1, '纯棉宽松短袖T恤', 99.0),   -- 用户10001购物车中的商品1，数量2，已选中
+(2, 10001, 1002, 1, 1, '男士印花短袖T恤', 89.0),   -- 用户10001购物车中的商品2，数量1，已选中
+(3, 10001, 1003, 3, 0, '女士修身短袖T恤', 109.0),  -- 用户10001购物车中的商品3，数量3，未选中
+(4, 10002, 1004, 1, 1, '情侣装短袖T恤', 119.0),   -- 用户10002购物车中的商品4，数量1，已选中
+(5, 10002, 1005, 2, 1, '商务休闲长袖衬衫', 199.0);   -- 用户10002购物车中的商品5，数量2，已选中
 
 -- 为orders表添加数据
 INSERT INTO orders (userId, orderNumber, orderAmount, status, paymentMethod, receiverName, receiverPhone, receiverAddress) VALUES
-(10001, 'ORD20230501001', 599.98, 3, '在线支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室'),  -- 用户1的订单，状态：已完成
-(10001, 'ORD20230501002', 299.99, 2, '微信支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室'),  -- 用户1的订单，状态：已发货
-(10002, 'ORD20230501003', 899.97, 1, '支付宝', '李四', '13800138001', '广东省广州市天河区天河路385号太古汇商场3楼'),    -- 用户2的订单，状态：已支付
-(10002, 'ORD20230501004', 199.99, 0, '在线支付', '李四', '13800138001', '广东省广州市天河区天河路385号太古汇商场3楼'),  -- 用户2的订单，状态：待支付
-(10001, 'ORD20230501005', 499.98, 1, '微信支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室');  -- 用户1的订单，状态：已支付
+(10003, 'ORD20230501001', 599.98, 'paid', '在线支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室'),  -- 用户1的订单，状态：已完成
+(10003, 'ORD20230501002', 299.99, 'pending', '微信支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室'),  -- 用户1的订单，状态：已发货
+(10002, 'ORD20230501003', 899.97, 'shipped', '支付宝', '李四', '13800138001', '广东省广州市天河区天河路385号太古汇商场3楼'),    -- 用户2的订单，状态：已支付
+(10002, 'ORD20230501004', 199.99, 'completed', '在线支付', '李四', '13800138001', '广东省广州市天河区天河路385号太古汇商场3楼'),  -- 用户2的订单，状态：待支付
+(10001, 'ORD20230501005', 499.98, 'cancelled', '微信支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室');  -- 用户1的订单，状态：已支付
 
 -- 为order_items表添加数据
 INSERT INTO order_items (orderId, productId, quantity, price, name) VALUES

@@ -18,13 +18,13 @@ public class CartItem implements Serializable {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
-    private Long cartId;
+    private Long userId;
     private Long productId;
-    private Long specId;
+    private String spec;
     private String name;
     private String imageUrl;
     private Integer quantity;
-    private Integer selected;
+    private Boolean selected;
     private BigDecimal price;
     private Date createTime;
     private Date updateTime;
@@ -38,13 +38,14 @@ public class CartItem implements Serializable {
         this.id = id;
     }
 
-    public Long getCartId() {
-        return cartId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setCartId(Long cartId) {
-        this.cartId = cartId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
+
 
     public Long getProductId() {
         return productId;
@@ -54,12 +55,12 @@ public class CartItem implements Serializable {
         this.productId = productId;
     }
 
-    public Long getSpecId() {
-        return specId;
+    public String getSpec() {
+        return spec;
     }
 
-    public void setSpecId(Long specId) {
-        this.specId = specId;
+    public void setSpec(String spec) {
+        this.spec = spec;
     }
 
     public String getName() {
@@ -86,11 +87,11 @@ public class CartItem implements Serializable {
         this.quantity = quantity;
     }
 
-    public Integer getSelected() {
+    public Boolean getSelected() {
         return selected;
     }
 
-    public void setSelected(Integer selected) {
+    public void setSelected(Boolean selected) {
         this.selected = selected;
     }
 

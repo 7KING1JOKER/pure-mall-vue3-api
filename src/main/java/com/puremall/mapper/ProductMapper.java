@@ -18,13 +18,24 @@ import java.util.List;
 
 @Mapper
 public interface ProductMapper extends BaseMapper<Product> {
+    // 查询所有商品（仅返回id、name、price、sales和第一张图片）
+    @Select("SELECT p.*, " +
+            "       (SELECT imageUrl FROM product_images WHERE productId = p.id ORDER BY sortOrder LIMIT 1) AS image " +
+            "FROM products p " +
+            "WHERE p.status = 1 " +
+            "ORDER BY p.updateTime DESC")
+    List<Product> selectAllProducts();
+
     // 分页查询商品
-    @Select("SELECT * FROM products WHERE (categoryLabel = #{categoryId} OR #{categoryId} IS NULL) AND (name LIKE CONCAT('%', #{keyword}, '%') OR brief LIKE CONCAT('%', #{keyword}, '%') OR #{keyword} IS NULL) AND status = 1 ORDER BY updateTime DESC")
-    IPage<Product> selectProductPage(Page<Product> page, String categoryId, String keyword);
+    @Select("SELECT * FROM products WHERE categoryLabel = #{categoryLabel} AND status = 1 ORDER BY updateTime DESC")
+    IPage<Product> selectProductPage(Page<Product> page, String categoryLabel);
     
     // 根据ID查询商品详情
-    @Select("SELECT * FROM products WHERE id = #{id}")
-    Product findById(Long id);
+    @Select("SELECT p.*, " +
+            "       (SELECT imageUrl FROM product_images WHERE productId = p.id ORDER BY sortOrder LIMIT 1) AS image " +
+            "FROM products p " +
+            "WHERE p.id = #{id} AND p.status = 1")
+    Product selectById(Long id);
     
     // 根据ID列表查询商品
     @Select("<script>SELECT * FROM products WHERE id IN <foreach item='id' collection='ids' open='(' separator=',' close=')'>#{id}</foreach></script>")

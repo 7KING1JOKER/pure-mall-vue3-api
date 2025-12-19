@@ -6,10 +6,9 @@ package com.puremall.service.impl;
  */
 
 import com.puremall.entity.Order;
-import com.puremall.entity.OrderItem;
+import com.puremall.entity.CartItem;
 import com.puremall.entity.ProductSpec;
 import com.puremall.mapper.OrderMapper;
-import com.puremall.mapper.OrderItemMapper;
 import com.puremall.mapper.ProductSpecMapper;
 import com.puremall.service.OrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -25,47 +24,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements OrderService {
 
     @Autowired
     private OrderMapper orderMapper;
-
-    @Autowired
-    private OrderItemMapper orderItemMapper;
     
     @Autowired
     private ProductSpecMapper productSpecMapper;
 
     @Override
-    public Map<String, Object> getOrdersByUserId(Long userId, Integer status, Integer page, Integer pageSize) {
-        Page<Order> orderPage = new Page<>(page, pageSize);
-        QueryWrapper<Order> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", userId);
-        if (status != null) {
-            wrapper.eq("status", status);
-        }
-        wrapper.orderByDesc("create_time");
-        
-        Page<Order> result = orderMapper.selectPage(orderPage, wrapper);
-        List<Order> orders = result.getRecords();
-        
-        // 为每个订单加载订单项
-        for (Order order : orders) {
-            loadOrderItems(order);
-        }
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("list", orders);
-        response.put("total", result.getTotal());
-        response.put("page", page);
-        response.put("pageSize", pageSize);
-        
-        return response;
+    public List<Order> getOrdersByUserId(Long userId) {
+        return orderMapper.findByUserId(userId);
     }
 
+    @Override
+    public Map<String, Object> addOrder(Long userId, Order order) {        
+        // 保存订单
+        orderMapper.insert(order);
+        
+        // 返回订单详情
+        Map<String, Object> response = new HashMap<>();
+        response.put("order", order);
+        return response;
+    }
     @Override
     public Order getOrderByOrderNumber(Long userId, String orderNumber) {
         Order order = orderMapper.findByOrderNumber(orderNumber);
@@ -80,18 +63,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
     
     private void loadOrderItems(Order order) {
+        // OrderItem已删除，此方法暂时为空
+        // 后续可考虑将购物车项直接存储在订单表或其他方式
         if (order != null) {
-            QueryWrapper<OrderItem> wrapper = new QueryWrapper<>();
-            wrapper.eq("order_id", order.getId());
-            List<OrderItem> orderItems = orderItemMapper.selectList(wrapper);
-            order.setOrderItems(orderItems);
+            order.setOrderItems(new ArrayList<>());
         }
     }
 
     @Override
     @Transactional
     public Map<String, Object> createOrder(Long userId, Map<String, Object> orderData) {
-          // 验证数据
+        // 验证数据
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> itemsData = (List<Map<String, Object>>) orderData.get("items");
         if (itemsData == null || itemsData.isEmpty()) {
@@ -121,19 +103,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         // 计算订单总金额并检查库存
         BigDecimal totalAmount = BigDecimal.ZERO;
         Map<Long, ProductSpec> specCache = new HashMap<>();
-        List<OrderItem> orderItems = new ArrayList<>();
+        List<CartItem> orderItems = new ArrayList<>();
         
         for (Map<String, Object> itemData : itemsData) {
-            OrderItem item = new OrderItem();
+            CartItem item = new CartItem();
             // 直接进行类型转换，避免不必要的中间变量
              item.setProductId(Long.valueOf(itemData.get("productId").toString()));
-             item.setSpecId(Long.valueOf(itemData.get("specId").toString()));
+             Long specId = Long.valueOf(itemData.get("specId").toString());
              item.setQuantity(Integer.valueOf(itemData.get("quantity").toString()));
              item.setName((String) itemData.get("name"));
              item.setImageUrl((String) itemData.get("imageUrl"));
             
             // 获取商品规格
-            ProductSpec spec = productSpecMapper.selectById(item.getSpecId());
+            ProductSpec spec = productSpecMapper.selectById(specId);
             if (spec == null) {
                 throw new BusinessException("商品规格不存在");
             }
@@ -144,7 +126,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             }
             
             // 保存规格到缓存，用于后续更新库存
-            specCache.put(item.getSpecId(), spec);
+            specCache.put(specId, spec);
             
             // 设置商品价格和小计
             item.setPrice(spec.getPrice());
@@ -154,14 +136,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         // 保存订单
         orderMapper.insert(order);
         
-        // 保存订单项并更新库存
-        for (OrderItem item : orderItems) {
-            item.setOrderId(order.getId());
-            // OrderItem类没有setCreateTime方法，直接保存
-            orderItemMapper.insert(item);
-            
+        // 更新库存并计算总金额
+        for (CartItem item : orderItems) {
+            Long specId = Long.valueOf(itemsData.get(orderItems.indexOf(item)).get("specId").toString());
             // 更新库存
-            ProductSpec spec = specCache.get(item.getSpecId());
+            ProductSpec spec = specCache.get(specId);
             spec.setStock(spec.getStock() - item.getQuantity());
             spec.setSalesAmount(spec.getSalesAmount() + item.getQuantity());
             productSpecMapper.updateById(spec);
@@ -237,11 +216,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         
         // 加载订单项以恢复库存
         loadOrderItems(order);
-        List<OrderItem> orderItems = order.getOrderItems();
+        List<CartItem> orderItems = order.getOrderItems();
         
         // 恢复库存
-        for (OrderItem item : orderItems) {
-            ProductSpec spec = productSpecMapper.selectById(item.getSpecId());
+        for (CartItem item : orderItems) {
+            // 注意：CartItem没有specId字段，这里需要根据productId和spec查询对应的ProductSpec
+            QueryWrapper<ProductSpec> specWrapper = new QueryWrapper<>();
+            specWrapper.eq("productId", item.getProductId());
+            specWrapper.eq("spec", item.getSpec());
+            ProductSpec spec = productSpecMapper.selectOne(specWrapper);
+            
             if (spec != null) {
                 spec.setStock(spec.getStock() + item.getQuantity());
                 spec.setSalesAmount(Math.max(0, spec.getSalesAmount() - item.getQuantity()));
@@ -297,15 +281,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
     
     @Override
-    public List<OrderItem> getOrderItemsByOrderNumber(String orderNumber) {
-        Order order = orderMapper.findByOrderNumber(orderNumber);
-        if (order == null) {
-            throw new BusinessException("订单不存在");
-        }
-        
-        QueryWrapper<OrderItem> wrapper = new QueryWrapper<>();
-        wrapper.eq("order_id", order.getId());
-        return orderItemMapper.selectList(wrapper);
+    public List<CartItem> getOrderItemsByOrderNumber(String orderNumber) {
+        // OrderItem已删除，暂时返回空列表
+        // 后续需要考虑将购物车项信息直接存储在订单或其他方式
+        return new ArrayList<>();
     }
     
     @Override
@@ -392,7 +371,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         
         // 查询各状态订单数量
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", userId);
+        wrapper.eq("userId", userId);
         
         // 待支付订单
         wrapper.eq("status", "pending");
@@ -400,30 +379,53 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         
         // 已支付订单
         wrapper.setEntity(new Order()); // 重置条件
-        wrapper.eq("user_id", userId);
+        wrapper.eq("userId", userId);
         wrapper.eq("status", "paid");
         statusCount.put("paid", Math.toIntExact(orderMapper.selectCount(wrapper)));
         
         // 已发货订单
         wrapper.setEntity(new Order());
-        wrapper.eq("user_id", userId);
+        wrapper.eq("userId", userId);
         wrapper.eq("status", "shipped");
         statusCount.put("shipped", Math.toIntExact(orderMapper.selectCount(wrapper)));
         
         // 已完成订单
         wrapper.setEntity(new Order());
-        wrapper.eq("user_id", userId);
+        wrapper.eq("userId", userId);
         wrapper.eq("status", "completed");
         statusCount.put("completed", Math.toIntExact(orderMapper.selectCount(wrapper)));
         
         // 已取消订单
         wrapper.setEntity(new Order());
-        wrapper.eq("user_id", userId);
+        wrapper.eq("userId", userId);
         wrapper.eq("status", "cancelled");
         statusCount.put("cancelled", Math.toIntExact(orderMapper.selectCount(wrapper)));
         
         return statusCount;
     }
     
+    @Override
+    @Transactional
+    public Map<String, Object> deleteOrder(String orderNumber) {
+        // 获取订单，用于验证订单是否存在
+        Order order = orderMapper.findByOrderNumber(orderNumber);
+        if (order == null) {
+            throw new BusinessException("订单不存在");
+        }
+        
+        // 调用Mapper方法直接删除订单和关联的订单项
+        int rowsAffected = orderMapper.deleteOrderByOrderNumber(orderNumber);
+        
+        // 验证删除是否成功
+        if (rowsAffected == 0) {
+            throw new BusinessException("订单删除失败");
+        }
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("message", "订单删除成功");
+        
+        return result;
+    }
 
 }

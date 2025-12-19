@@ -19,6 +19,10 @@ public interface UserMapper extends BaseMapper<User> {
     @Select("SELECT * FROM users WHERE username = #{username}")
     User findByUsername(String username);
     
+    // 根据用户名查询用户ID
+    @Select("SELECT id FROM users WHERE username = #{username}")
+    Long getUserIdByUsername(String username);
+
     // 根据邮箱查询用户
     @Select("SELECT * FROM users WHERE email = #{email}")
     User findByEmail(String email);
@@ -32,15 +36,15 @@ public interface UserMapper extends BaseMapper<User> {
     User findById(Long id);
     
     // 插入用户
-    @Insert("INSERT INTO users(username, password, email, phone, status, createTime, updateTime) VALUES(#{username}, #{password}, #{email}, #{phone}, #{status}, NOW(), NOW())")
+    @Insert("INSERT INTO users(username, password, email, phone, status, createTime) VALUES(#{username}, #{password}, #{email}, #{phone}, #{status}, NOW())")
     int insert(User user);
     
     // 更新用户信息
-    @Update("UPDATE users SET password = #{password}, email = #{email}, phone = #{phone}, status = #{status}, updateTime = NOW() WHERE id = #{id}")
+    @Update("UPDATE users SET password = #{password}, email = #{email}, phone = #{phone}, status = #{status} WHERE id = #{id}")
     int update(User user);
     
     // 更新用户状态
-    @Update("UPDATE users SET status = #{status}, updateTime = NOW() WHERE id = #{id}")
+    @Update("UPDATE users SET status = #{status} WHERE id = #{id}")
     int updateStatus(Long id, Integer status);
     
     // 根据ID删除用户

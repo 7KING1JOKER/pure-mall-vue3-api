@@ -6,8 +6,9 @@ package com.puremall.controller;
  */
 
 import com.puremall.entity.Order;
-import com.puremall.entity.OrderItem;
+import com.puremall.entity.CartItem;
 import com.puremall.service.OrderService;
+import com.puremall.service.UserService;
 import com.puremall.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,26 +23,43 @@ import java.util.Map;
 @Tag(name = "订单管理", description = "订单创建、查询、支付、物流等全流程接口")
 public class OrderController {
 
+     @Autowired
+    private UserService userService;
+
     @Autowired
     private OrderService orderService;
 
-    @GetMapping("/list")
+    @GetMapping("/userOrders")
     @Operation(summary = "获取用户订单列表")
     public Response<Map<String, Object>> getOrders(
-            @RequestParam Long userId,
-            @RequestParam(required = false) Integer status,
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize) {
-        Map<String, Object> result = orderService.getOrdersByUserId(userId, status, page, pageSize);
+            @RequestParam String username) {
+        Long userId = userService.getUserIdByUsername(username);
+        List<Order> orders = orderService.getOrdersByUserId(userId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("orders", orders);
         return Response.success(result);
     }
 
+    @PostMapping("/addOrder")
+    @Operation(summary = "添加订单商品")
+    public Response<Map<String, Object>> addOrders(@RequestParam Long userId, @RequestBody Order order) {
+        Map<String, Object> result = orderService.addOrder(userId, order);
+        return Response.success(result);
+    }
+
+    @DeleteMapping("/deleteOrder")
+    @Operation(summary = "删除订单")
+    public Response<Map<String, Object>> deleteOrder(@RequestParam String orderNumber) {
+        Map<String, Object> result = orderService.deleteOrder(orderNumber);
+        return Response.success(result);
+    }
+    
     @GetMapping("/{orderNumber}")
     @Operation(summary = "获取订单详情及商品列表")
-    public Response<Map<String, Object>> getOrderDetail(@RequestParam Long userId, @PathVariable String orderNumber) {
+    public Response<Map<String, Object>> getOrderDetail(@RequestParam Long userId, @RequestParam String orderNumber) {
         Map<String, Object> result = new HashMap<>();
         Order order = orderService.getOrderByOrderNumber(userId, orderNumber);
-        List<OrderItem> orderItems = orderService.getOrderItemsByOrderNumber(orderNumber);
+        List<CartItem> orderItems = orderService.getOrderItemsByOrderNumber(orderNumber);
         Map<String, Object> logisticsInfo = orderService.getOrderLogisticsInfo(orderNumber);
         
         result.put("order", order);
@@ -81,8 +99,8 @@ public class OrderController {
     
     @GetMapping("/{orderNumber}/items")
     @Operation(summary = "获取订单商品列表")
-    public Response<List<OrderItem>> getOrderItems(@PathVariable String orderNumber) {
-        List<OrderItem> orderItems = orderService.getOrderItemsByOrderNumber(orderNumber);
+    public Response<List<CartItem>> getOrderItems(@PathVariable String orderNumber) {
+        List<CartItem> orderItems = orderService.getOrderItemsByOrderNumber(orderNumber);
         return Response.success(orderItems);
     }
     
@@ -117,4 +135,6 @@ public class OrderController {
         Map<String, Object> result = orderService.reviewOrderItems(userId, orderNumber, reviewData);
         return Response.success(result);
     }
+    
+
 }

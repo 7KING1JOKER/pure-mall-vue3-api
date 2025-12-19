@@ -15,7 +15,7 @@ public interface AddressService extends IService<Address> {
     Address getDefaultAddress(Long userId);
     Address getAddressById(Long userId, Long addressId);
     Address addAddress(Long userId, Address address);
-    Address updateAddress(Long userId, Long addressId, Address address);
+    Address updateAddress(Long userId, Address address);
     void deleteAddress(Long userId, Long addressId);
     Map<String, Object> setDefaultAddress(Long userId, Long addressId);
     int getUserAddressCount(Long userId);

@@ -6,6 +6,7 @@ package com.puremall.controller;
  */
 
 import com.puremall.entity.Address;
+import com.puremall.service.UserService;
 import com.puremall.service.AddressService;
 import com.puremall.response.Response;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,11 +22,15 @@ import java.util.Map;
 public class AddressController {
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private AddressService addressService;
 
-    @GetMapping("/list")
+    @GetMapping("/userAddressList")
     @Operation(summary = "获取用户地址列表")
-    public Response<List<Address>> getAddresses(Long userId) {
+    public Response<List<Address>> getAddresses(String username) {
+        Long userId = userService.getUserIdByUsername(username);
         List<Address> addresses = addressService.getUserAddresses(userId);
         return Response.success(addresses);
     }
@@ -45,34 +50,38 @@ public class AddressController {
         return Response.success(address);
     }
 
-    @PostMapping("/")
+    @PostMapping("/addAddress")
     @Operation(summary = "添加地址")
-    public Response<Address> addAddress(Long userId, @RequestBody Address address) {
+    public Response<Address> addAddress(String username, @RequestBody Address address) {
+        Long userId = userService.getUserIdByUsername(username);
+        address.setUserId(userId);
         Address newAddress = addressService.addAddress(userId, address);
         return Response.success(newAddress);
     }
 
-    @PutMapping("/{addressId}")
+    @PutMapping("/updateAddress/{addressId}")
     @Operation(summary = "更新地址")
-    public Response<Address> updateAddress(Long userId, 
-                                         @PathVariable Long addressId, 
+    public Response<Address> updateAddress(String username, 
                                          @RequestBody Address address) {
-        Address updatedAddress = addressService.updateAddress(userId, addressId, address);
+        Long userId = userService.getUserIdByUsername(username);
+        Address updatedAddress = addressService.updateAddress(userId, address);
         return Response.success(updatedAddress);
     }
 
-    @DeleteMapping("/{addressId}")
+    @DeleteMapping("/deleteAddress/{addressId}")
     @Operation(summary = "删除地址")
-    public Response<Void> deleteAddress(Long userId, 
+    public Response<Void> deleteAddress(String username, 
                                       @PathVariable Long addressId) {
+        Long userId = userService.getUserIdByUsername(username);
         addressService.deleteAddress(userId, addressId);
         return Response.success(null);
     }
 
     @PutMapping("/{addressId}/default")
     @Operation(summary = "设置默认地址")
-    public Response<Map<String, Object>> setDefaultAddress(Long userId, 
+    public Response<Map<String, Object>> setDefaultAddress(String username,
                                                          @PathVariable Long addressId) {
+        Long userId = userService.getUserIdByUsername(username);
         Map<String, Object> result = addressService.setDefaultAddress(userId, addressId);
         return Response.success(result);
     }

@@ -25,4 +25,5 @@ public class SwaggerConfig {
                         .description("Pure Mall Documentation")
                         .url("https://springshop.wiki.github.org/docs"));
     }
+    // Swagger UI默认路径: http://localhost:8080/swagger-ui.html
 }

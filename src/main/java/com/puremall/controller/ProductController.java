@@ -26,10 +26,9 @@ public class ProductController {
     @Operation(summary = "分页获取商品列表")
     public Response<?> getProductPage(
             @RequestParam(required = false, defaultValue = "1") Integer pageNum,
-            @RequestParam(required = false, defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) String keyword) {
-        return Response.success(productService.getProductPage(pageNum, pageSize, categoryId, keyword));
+            @RequestParam(required = false, defaultValue = "12") Integer pageSize,
+            @RequestParam(required = false) String categoryLabel) {
+        return Response.success(productService.getProductPage(pageNum, pageSize, categoryLabel));
     }
 
     @GetMapping("/{productId}")
@@ -38,21 +37,26 @@ public class ProductController {
         return Response.success(productService.getProductById(productId));
     }
 
-    @GetMapping("/category/{categoryId}")
+    @GetMapping("/category/{categoryLabel}")
     @Operation(summary = "根据分类获取商品列表")
     public Response<?> getProductsByCategory(
-            @PathVariable Long categoryId,
+            @PathVariable String categoryLabel,
             @RequestParam(required = false) Integer pageNum,
             @RequestParam(required = false) Integer pageSize) {
         if (pageNum != null && pageSize != null) {
             // 分页查询
-            return Response.success(productService.getProductPage(pageNum, pageSize, categoryId, null));
+            return Response.success(productService.getProductPage(pageNum, pageSize, categoryLabel));
         } else {
             // 不分页查询
-            List<Product> products = productService.getProductsByCategory(categoryId);
+            List<Product> products = productService.getProductsByCategory(categoryLabel);
             return Response.success(products);
         }
     }
     
+    @GetMapping("/productList")
+    @Operation(summary = "获取所有商品列表")
+    public Response<List<Product>> getAllProducts() {
+        return Response.success(productService.selectAllProducts());
+    }
 
 }

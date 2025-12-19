@@ -65,15 +65,8 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
 
     @Override
     @Transactional
-    public Address updateAddress(Long userId, Long addressId, Address address) {
-        // 验证地址是否属于当前用户
-        Address existingAddress = addressMapper.selectById(addressId);
-        if (existingAddress == null || !existingAddress.getUserId().equals(userId)) {
-            throw new BusinessException("地址不存在或无权限操作");
-        }
-        // 设置地址ID和用户ID
-        address.setId(addressId);
-        address.setUserId(userId);
+    public Address updateAddress(Long userId, Address address) {
+        
         // 如果是默认地址，先将其他地址设为非默认
         if (address.getIsDefault()) {
             addressMapper.updateDefaultByUserId(userId, 0);
@@ -91,27 +84,14 @@ public class AddressServiceImpl extends ServiceImpl<AddressMapper, Address> impl
             throw new BusinessException("地址不存在或无权限操作");
         }
         // 删除地址
-        addressMapper.deleteById(addressId);
-        
-        // 如果删除的是默认地址，且用户还有其他地址，则将第一个地址设为默认
-        if (address.getIsDefault()) {
-            List<Address> remainingAddresses = addressMapper.findByUserId(userId);
-            if (remainingAddresses != null && !remainingAddresses.isEmpty()) {
-                Address newDefault = remainingAddresses.get(0);
-                newDefault.setIsDefault(true);
-                addressMapper.updateById(newDefault);
-            }
-        }
+        addressMapper.deleteById(addressId, userId);
     }
 
     @Override
     @Transactional
     public Map<String, Object> setDefaultAddress(Long userId, Long addressId) {
-        // 验证地址是否属于当前用户
         Address address = addressMapper.selectById(addressId);
-        if (address == null || !address.getUserId().equals(userId)) {
-            throw new BusinessException("地址不存在或无权限操作");
-        }
+
         // 先将所有地址设为非默认
         addressMapper.updateDefaultByUserId(userId, 0);
         // 将指定地址设为默认

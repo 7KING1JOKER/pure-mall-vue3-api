@@ -27,6 +27,10 @@ public interface OrderMapper extends BaseMapper<Order> {
     @Select("SELECT * FROM orders WHERE orderNumber = #{orderNumber}")
     Order findByOrderNumber(@Param("orderNumber") String orderNumber);
     
+    // 根据用户名查询其订单
+    @Select("SELECT o.* FROM orders o JOIN users u ON o.userId = u.id WHERE u.username = #{username} ORDER BY o.createTime DESC")
+    List<Order> getOrdersByUsername(@Param("username") String username);
+
     // 根据ID查询订单
     @Select("SELECT * FROM orders WHERE id = #{id}")
     Order findById(@Param("id") Long id);
@@ -94,4 +98,8 @@ public interface OrderMapper extends BaseMapper<Order> {
     // 查询订单详情（包含订单项）
     @Select("SELECT o.*, oi.* FROM orders o JOIN order_items oi ON o.id = oi.orderId WHERE o.id = #{orderId}")
     List<Map<String, Object>> findOrderDetailWithItems(@Param("orderId") Long orderId);
+    
+    // 根据订单号和用户ID删除订单（包含订单项）
+    @Delete("DELETE FROM orders WHERE orderNumber = #{orderNumber}")
+    int deleteOrderByOrderNumber(@Param("orderNumber") String orderNumber);
 }

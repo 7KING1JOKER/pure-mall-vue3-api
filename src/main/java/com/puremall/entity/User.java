@@ -21,6 +21,8 @@ public class User implements Serializable {
     private String password;
     private String email;
     private String phone;
+    private String sex;
+    private String birthday;
     private String avatar;
     private Date createTime;
     private Date lastLogin;
@@ -57,6 +59,22 @@ public class User implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
     }
 
     public String getPhone() {
