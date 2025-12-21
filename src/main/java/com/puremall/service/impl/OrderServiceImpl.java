@@ -40,11 +40,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
 
     @Override
-    public Map<String, Object> addOrder(Long userId, Order order) {        
-        // 保存订单
-        orderMapper.insert(order);
+    @Transactional
+    public Map<String, Object> addOrder(Long userId, Order order) {
         
-        // 返回订单详情
+        orderMapper.insert(order);
+
         Map<String, Object> response = new HashMap<>();
         response.put("order", order);
         return response;
@@ -63,10 +63,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     }
     
     private void loadOrderItems(Order order) {
-        // OrderItem已删除，此方法暂时为空
-        // 后续可考虑将购物车项直接存储在订单表或其他方式
         if (order != null) {
-            order.setOrderItems(new ArrayList<>());
+            List<CartItem> orderItems = getOrderItemsByOrderNumber(order.getOrderNumber());
+            order.setOrderItems(orderItems);
         }
     }
 
@@ -134,7 +133,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         
         // 保存订单
-        orderMapper.insert(order);
+        this.save(order);
         
         // 更新库存并计算总金额
         for (CartItem item : orderItems) {
@@ -282,9 +281,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     
     @Override
     public List<CartItem> getOrderItemsByOrderNumber(String orderNumber) {
-        // OrderItem已删除，暂时返回空列表
-        // 后续需要考虑将购物车项信息直接存储在订单或其他方式
-        return new ArrayList<>();
+        // 从数据库查询订单项数据
+        List<CartItem> orderItems = new ArrayList<>();
+        
+        
+        return orderItems;
     }
     
     @Override

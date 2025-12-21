@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.puremall.utils.JwtUtils;
+
 @RestController
 @RequestMapping("/api/user")
 @Tag(name = "用户管理", description = "用户登录、注册、信息管理接口")
@@ -23,6 +25,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @GetMapping("/getUserId")
     @Operation(summary = "根据用户名获取用户ID")
@@ -42,9 +47,16 @@ public class UserController {
 
     @PostMapping("/login")
     @Operation(summary = "用户登录")
-    public Response<User> login(@RequestBody User user) {
+    public Response<Map<String, Object>> login(@RequestBody User user) {
         User loggedInUser = userService.login(user);
-        return Response.success(loggedInUser);
+        Map<String, Object> response = new HashMap<>();
+        response.put("user", loggedInUser);
+
+        // 生成JWT token
+        String token = jwtUtils.generateToken(loggedInUser.getId(), loggedInUser.getUsername());
+        response.put("token", token);
+
+        return Response.success(response);
     }
 
     @GetMapping("/getInfo")

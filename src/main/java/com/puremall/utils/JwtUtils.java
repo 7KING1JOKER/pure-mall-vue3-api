@@ -41,7 +41,7 @@ public class JwtUtils {
     // 从JWT令牌中获取用户名
     public String getUsernameFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        return claims.get("username", String.class);
+        return claims.getSubject();
     }
 
     // 从JWT令牌中获取用户ID

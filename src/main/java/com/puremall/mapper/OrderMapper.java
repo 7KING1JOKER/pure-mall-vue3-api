@@ -102,4 +102,5 @@ public interface OrderMapper extends BaseMapper<Order> {
     // 根据订单号和用户ID删除订单（包含订单项）
     @Delete("DELETE FROM orders WHERE orderNumber = #{orderNumber}")
     int deleteOrderByOrderNumber(@Param("orderNumber") String orderNumber);
+    
 }

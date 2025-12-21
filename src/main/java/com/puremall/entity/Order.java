@@ -6,13 +6,13 @@ package com.puremall.entity;
  */
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import com.baomidou.mybatisplus.annotation.TableField;
 
 @TableName("orders")
 public class Order implements Serializable {
@@ -35,8 +35,8 @@ public class Order implements Serializable {
     private String remark;
     private Date createTime;
     private Date updateTime;
-    
-    // 非数据库字段，用于关联购物车项
+
+    // 非数据库字段，用于关联订单商品项
     @TableField(exist = false)
     private List<CartItem> orderItems;
 

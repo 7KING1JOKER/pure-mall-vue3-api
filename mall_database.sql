@@ -185,26 +185,27 @@ CREATE TABLE orders (
     INDEX idx_orderTime (orderTime)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单表';
 
--- 10. 订单项表 (order_items)
+
+-- 10. 订单商品项表 (order_items)
 DROP TABLE IF EXISTS order_items;
 CREATE TABLE order_items (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '订单项ID',
-    orderId BIGINT NOT NULL COMMENT '订单ID',
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '订单商品项ID',
+    userId BIGINT NOT NULL COMMENT '用户ID',
     productId BIGINT NOT NULL COMMENT '商品ID',
-    specId BIGINT COMMENT '规格ID',
-    name VARCHAR(255) NOT NULL COMMENT '商品名称',
     spec VARCHAR(255) COMMENT '规格描述',
+    name VARCHAR(255) NOT NULL COMMENT '商品名称',
     imageUrl VARCHAR(500) COMMENT '商品图片URL',
-    price DECIMAL(10, 2) NOT NULL COMMENT '单价',
     quantity INT NOT NULL DEFAULT 1 COMMENT '数量',
-    selected BOOLEAN DEFAULT TRUE COMMENT '是否选中',
-    FOREIGN KEY (orderId) REFERENCES orders(id) ON DELETE CASCADE,
+    selected BOOLEAN DEFAULT TRUE COMMENT '是否选中（TRUE:选中，FALSE:未选中）',
+    price DECIMAL(10, 2) NOT NULL COMMENT '单价',
+    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    FOREIGN KEY (specId) REFERENCES product_specs(id) ON DELETE SET NULL,
-    INDEX idx_orderId (orderId),
+    INDEX idx_userId (userId),
     INDEX idx_productId (productId)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单项表';
-
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单商品项表';
+--
 
 -- 为addresses表添加数据
 INSERT INTO addresses (userId, name, phone, province, city, district, street, postcode, detail, isDefault) VALUES
@@ -238,13 +239,6 @@ INSERT INTO orders (userId, orderNumber, orderAmount, status, paymentMethod, rec
 (10002, 'ORD20230501004', 199.99, 'completed', '在线支付', '李四', '13800138001', '广东省广州市天河区天河路385号太古汇商场3楼'),  -- 用户2的订单，状态：待支付
 (10001, 'ORD20230501005', 499.98, 'cancelled', '微信支付', '张三', '13800138000', '北京市朝阳区建国路88号SOHO现代城B座2301室');  -- 用户1的订单，状态：已支付
 
--- 为order_items表添加数据
-INSERT INTO order_items (orderId, productId, quantity, price, name) VALUES
-(1, 1001, 2, 199.99, '纯棉宽松短袖T恤'),  -- 订单1中的商品1，数量2，单价199.99
-(1, 1002, 1, 199.99, '男士印花短袖T恤'),  -- 订单1中的商品2，数量1，单价199.99
-(2, 1003, 1, 299.99, '女士修身短袖T恤'),  -- 订单2中的商品3，数量1，单价299.99
-(3, 1004, 3, 299.99, '情侣装短袖T恤'),  -- 订单3中的商品4，数量3，单价299.99
-(4, 1005, 1, 199.99, '商务休闲长袖衬衫');  -- 订单4中的商品5，数量1，单价199.99
 
 -- 为product_reviews表添加数据
 INSERT INTO product_reviews (userId, productId, rating, content) VALUES
