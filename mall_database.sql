@@ -190,20 +190,15 @@ CREATE TABLE orders (
 DROP TABLE IF EXISTS order_items;
 CREATE TABLE order_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '订单商品项ID',
-    userId BIGINT NOT NULL COMMENT '用户ID',
-    productId BIGINT NOT NULL COMMENT '商品ID',
+    orderNumber VARCHAR(50) NOT NULL COMMENT '订单号',
     spec VARCHAR(255) COMMENT '规格描述',
     name VARCHAR(255) NOT NULL COMMENT '商品名称',
     imageUrl VARCHAR(500) COMMENT '商品图片URL',
+    userId BIGINT NOT NULL COMMENT '用户ID',
     quantity INT NOT NULL DEFAULT 1 COMMENT '数量',
-    selected BOOLEAN DEFAULT TRUE COMMENT '是否选中（TRUE:选中，FALSE:未选中）',
     price DECIMAL(10, 2) NOT NULL COMMENT '单价',
-    createTime DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (productId) REFERENCES products(id) ON DELETE CASCADE,
-    INDEX idx_userId (userId),
-    INDEX idx_productId (productId)
+    INDEX idx_userId (userId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单商品项表';
 --
 
