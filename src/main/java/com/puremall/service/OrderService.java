@@ -16,9 +16,7 @@ public interface OrderService extends IService<Order> {
     Map<String, Object> addOrder(Long userId, Order order);
 
     Order getOrderByOrderNumber(Long userId, String orderNumber);
-    Map<String, Object> createOrder(Long userId, Map<String, Object> orderData);
     Map<String, Object> payOrder(Long userId, String orderNumber);
-    Map<String, Object> cancelOrder(Long userId, String orderNumber, String reason);
     Map<String, Object> confirmReceive(Long userId, String orderNumber);
     List<CartItem> getOrderItemsByOrderNumber(String orderNumber);
     Map<String, Object> getOrderLogisticsInfo(String orderNumber);

@@ -133,12 +133,4 @@ public class CartController {
         return Response.success(selectedItems);
     }
     
-    
-    @GetMapping("/count")
-    @Operation(summary = "获取购物车商品总数")
-    public Response<Integer> getCartItemCount(@RequestParam Long userId) {
-        Map<String, Object> statistics = cartService.getCartStatistics(userId);
-        Integer totalCount = (Integer) statistics.get("totalCount");
-        return Response.success(totalCount);
-    }
 }

@@ -7,17 +7,13 @@ package com.puremall.service.impl;
 
 import com.puremall.entity.Order;
 import com.puremall.entity.CartItem;
-import com.puremall.entity.ProductSpec;
 import com.puremall.mapper.OrderMapper;
-import com.puremall.mapper.ProductSpecMapper;
 import com.puremall.service.OrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.puremall.exception.BusinessException;
-import com.puremall.utils.OrderNumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,8 +27,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Autowired
     private OrderMapper orderMapper;
     
-    @Autowired
-    private ProductSpecMapper productSpecMapper;
 
     @Override
     public List<Order> getOrdersByUserId(Long userId) {
@@ -61,104 +55,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         return order;
     }
-    
-    private void loadOrderItems(Order order) {
-        if (order != null) {
-            List<CartItem> orderItems = getOrderItemsByOrderNumber(order.getOrderNumber());
-            order.setOrderItems(orderItems);
-        }
-    }
 
-    @Override
-    @Transactional
-    public Map<String, Object> createOrder(Long userId, Map<String, Object> orderData) {
-        // 验证数据
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> itemsData = (List<Map<String, Object>>) orderData.get("items");
-        if (itemsData == null || itemsData.isEmpty()) {
-            throw new BusinessException("订单商品不能为空");
-        }
-        
-        // 创建订单对象
-        Order order = new Order();
-        order.setUserId(userId);
-        order.setOrderNumber(OrderNumberUtils.generateOrderNumber());
-        order.setStatus("pending"); // 初始状态为待支付
-        order.setCreateTime(new Date());
-        order.setUpdateTime(new Date());
-        
-        // 设置收货信息
-        // Order类没有setAddressId方法，使用setReceiverAddress代替
-        if (orderData.containsKey("address")) {
-            order.setReceiverAddress((String) orderData.get("address"));
-        }
-        if (orderData.containsKey("receiverName")) {
-            order.setReceiverName((String) orderData.get("receiverName"));
-        }
-        if (orderData.containsKey("receiverPhone")) {
-            order.setReceiverPhone((String) orderData.get("receiverPhone"));
-        }
-        
-        // 计算订单总金额并检查库存
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        Map<Long, ProductSpec> specCache = new HashMap<>();
-        List<CartItem> orderItems = new ArrayList<>();
-        
-        for (Map<String, Object> itemData : itemsData) {
-            CartItem item = new CartItem();
-            // 直接进行类型转换，避免不必要的中间变量
-             item.setProductId(Long.valueOf(itemData.get("productId").toString()));
-             Long specId = Long.valueOf(itemData.get("specId").toString());
-             item.setQuantity(Integer.valueOf(itemData.get("quantity").toString()));
-             item.setName((String) itemData.get("name"));
-             item.setImageUrl((String) itemData.get("imageUrl"));
-            
-            // 获取商品规格
-            ProductSpec spec = productSpecMapper.selectById(specId);
-            if (spec == null) {
-                throw new BusinessException("商品规格不存在");
-            }
-            
-            // 检查库存
-            if (item.getQuantity() > spec.getStock()) {
-                throw new BusinessException("商品库存不足");
-            }
-            
-            // 保存规格到缓存，用于后续更新库存
-            specCache.put(specId, spec);
-            
-            // 设置商品价格和小计
-            item.setPrice(spec.getPrice());
-            orderItems.add(item);
-        }
-        
-        // 保存订单
-        this.save(order);
-        
-        // 更新库存并计算总金额
-        for (CartItem item : orderItems) {
-            Long specId = Long.valueOf(itemsData.get(orderItems.indexOf(item)).get("specId").toString());
-            // 更新库存
-            ProductSpec spec = specCache.get(specId);
-            spec.setStock(spec.getStock() - item.getQuantity());
-            spec.setSalesAmount(spec.getSalesAmount() + item.getQuantity());
-            productSpecMapper.updateById(spec);
-            
-            // 累加总金额
-            totalAmount = totalAmount.add(item.getPrice().multiply(new BigDecimal(item.getQuantity())));
-        }
-        
-        // 更新订单总金额
-        order.setOrderAmount(totalAmount); // 使用正确的setter方法
-        orderMapper.updateById(order);
-        
-        Map<String, Object> result = new HashMap<>();
-        result.put("orderId", order.getId());
-        result.put("orderNumber", order.getOrderNumber());
-        result.put("totalAmount", totalAmount);
-        
-        return result;
-    }
 
     @Override
     @Transactional
@@ -190,58 +87,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         result.put("success", true);
         result.put("message", "支付成功");
         result.put("orderNumber", orderNumber);
-        
-        return result;
-    }
-
-    @Override
-    @Transactional
-    public Map<String, Object> cancelOrder(Long userId, String orderNumber, String reason) {
-        // 获取订单
-        Order order = orderMapper.findByOrderNumber(orderNumber);
-        if (order == null) {
-            throw new BusinessException("订单不存在");
-        }
-        
-        // 验证订单是否属于当前用户
-        if (!order.getUserId().equals(userId)) {
-            throw new BusinessException("无权操作该订单");
-        }
-        
-        // 验证订单状态
-        if (!"pending".equals(order.getStatus())) {
-            throw new BusinessException("订单状态错误，无法取消");
-        }
-        
-        // 加载订单项以恢复库存
-        loadOrderItems(order);
-        List<CartItem> orderItems = order.getOrderItems();
-        
-        // 恢复库存
-        for (CartItem item : orderItems) {
-            // 注意：CartItem没有specId字段，这里需要根据productId和spec查询对应的ProductSpec
-            QueryWrapper<ProductSpec> specWrapper = new QueryWrapper<>();
-            specWrapper.eq("productId", item.getProductId());
-            specWrapper.eq("spec", item.getSpec());
-            ProductSpec spec = productSpecMapper.selectOne(specWrapper);
-            
-            if (spec != null) {
-                spec.setStock(spec.getStock() + item.getQuantity());
-                spec.setSalesAmount(Math.max(0, spec.getSalesAmount() - item.getQuantity()));
-                productSpecMapper.updateById(spec);
-            }
-        }
-        
-        // 更新订单状态为已取消
-        order.setStatus("cancelled");
-        // Order类没有setCancelReason和setCancelTime方法，使用remark存储取消原因
-        order.setRemark(reason);
-        order.setUpdateTime(new Date());
-        orderMapper.updateById(order);
-        
-        Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "订单已取消");
         
         return result;
     }

@@ -69,13 +69,6 @@ public class OrderController {
         return Response.success(result);
     }
 
-    @PostMapping("/")
-    @Operation(summary = "创建订单")
-    public Response<Map<String, Object>> createOrder(@RequestParam Long userId, @RequestBody Map<String, Object> orderData) {
-        Map<String, Object> result = orderService.createOrder(userId, orderData);
-        return Response.success(result);
-    }
-
     @PutMapping("/{orderNumber}/pay")
     @Operation(summary = "支付订单")
     public Response<Map<String, Object>> payOrder(@RequestParam Long userId, @PathVariable String orderNumber) {
@@ -83,12 +76,6 @@ public class OrderController {
         return Response.success(paymentResult);
     }
 
-    @PutMapping("/{orderNumber}/cancel")
-    @Operation(summary = "取消订单")
-    public Response<Map<String, Object>> cancelOrder(@RequestParam Long userId, @PathVariable String orderNumber, @RequestParam(required = false) String reason) {
-        Map<String, Object> result = orderService.cancelOrder(userId, orderNumber, reason);
-        return Response.success(result);
-    }
 
     @PutMapping("/{orderNumber}/confirm")
     @Operation(summary = "确认收货")
@@ -119,12 +106,6 @@ public class OrderController {
         return Response.success(result);
     }
     
-    @GetMapping("/status/count")
-    @Operation(summary = "获取各状态订单数量统计")
-    public Response<Map<String, Integer>> getOrderStatusCount(@RequestParam Long userId) {
-        Map<String, Integer> countMap = orderService.getOrderStatusCount(userId);
-        return Response.success(countMap);
-    }
     
     @PostMapping("/{orderNumber}/review")
     @Operation(summary = "评价订单商品")
