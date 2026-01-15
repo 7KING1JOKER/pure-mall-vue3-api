@@ -1,0 +1,67 @@
+services:
+  # MySQL数据库服务
+  mysql:
+    image: crpi-ln57l0vg937fdzxj.cn-shenzhen.personal.cr.aliyuncs.com/puremall-images/mysql:8.0
+    container_name: pure-mall-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456  # 替换为您想要设置的MySQL root密码
+      MYSQL_DATABASE: pure_mall  # 数据库名称，建议保持不变
+      MYSQL_USER: niko  # 替换为您想要创建的数据库用户名
+      MYSQL_PASSWORD: 123456  # 替换为您为数据库用户设置的密码
+      # 设置MySQL字符集为utf8mb4
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+      # MySQL服务器参数
+      MYSQL_INITDB_ARGS: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mall_database.sql:/docker-entrypoint-initdb.d/mall_database.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - pure-mall-network
+
+  # 后端应用服务
+  backend:
+    build: .
+    container_name: pure-mall-backend
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/pure_mall?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: niko  # 与MySQL服务中的MYSQL_USER保持一致
+      SPRING_DATASOURCE_PASSWORD: 123456  # 与MySQL服务中的MYSQL_PASSWORD保持一致
+      JWT_SECRET: 5f2d1a8e9b7c3f4e2a6d8b9c7e3f2d1a8e9b7c3f4e2a6d8b9c7e3f2d  # 替换为您自己的JWT密钥，建议使用随机生成的长字符串
+      SPRING_WEB_CORS_ALLOWED_ORIGINS: https://7king1joker.github.io  # 替换为您的GitHub Pages域名
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    networks:
+      - pure-mall-network
+
+  # Nginx反向代理服务
+  nginx:
+    image: crpi-ln57l0vg937fdzxj.cn-shenzhen.personal.cr.aliyuncs.com/puremall-images/nginx:alpine
+    container_name: pure-mall-nginx
+    restart: always
+    ports:
+      - "8081:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl  # SSL证书目录（可选）
+    depends_on:
+      - backend
+    networks:
+      - pure-mall-network
+
+# 数据卷定义
+volumes:
+  mysql_data:
+
+# 网络定义
+networks:
+  pure-mall-network:
+    driver: bridge

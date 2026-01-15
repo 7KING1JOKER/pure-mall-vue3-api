@@ -31,12 +31,8 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
+                    new AntPathRequestMatcher("/"),
                     new AntPathRequestMatcher("/api/**"),
-                    // new AntPathRequestMatcher("/api/user/login"),
-                    // new AntPathRequestMatcher("/api/user/register"),
-                    // new AntPathRequestMatcher("/api/user/check-username"),
-                    // new AntPathRequestMatcher("/api/user/check-email"),
-                    // new AntPathRequestMatcher("/api/user/check-phone"),
                     new AntPathRequestMatcher("/swagger-ui.html"),
                     new AntPathRequestMatcher("/swagger-ui/**"),
                     new AntPathRequestMatcher("/v3/api-docs/**")
