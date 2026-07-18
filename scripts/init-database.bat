@@ -41,9 +41,14 @@ if not exist "%SQL_FILE%" (
     echo [ERROR] SQL file not found: %SQL_FILE%
     exit /b 1
 )
-mysql -h%DB_HOST% -P%DB_PORT% -u%DB_USER% -p%DB_PASS% %DB_NAME% < "%SQL_FILE%" 2>&1
+chcp 65001 >nul 2>&1
+mysql -h%DB_HOST% -P%DB_PORT% -u%DB_USER% -p%DB_PASS% --default-character-set=utf8mb4 %DB_NAME% < "%SQL_FILE%" 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] SQL import failed
+    echo [INFO] Try running manually in cmd with administrator:
+    echo        chcp 65001
+    echo        mysql -u root -p123456 --default-character-set=utf8mb4 pure_mall
+    echo        SOURCE %SQL_FILE%;
     exit /b 1
 )
 echo [OK] SQL import completed
