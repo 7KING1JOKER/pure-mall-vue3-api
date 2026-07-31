@@ -23,7 +23,7 @@ for /f "tokens=*" %%i in ('java -version 2^>^&1 ^| findstr /i "version"') do ech
 :: 2. Check Maven Wrapper
 echo [2/4] Checking Maven Wrapper...
 if not exist "%PROJECT_DIR%\mvnw.cmd" (
-    echo [ERROR] Maven Wrapper (mvnw.cmd) not found.
+    echo [ERROR] Maven Wrapper ^(mvnw.cmd^) not found.
     exit /b 1
 )
 echo [OK] Maven Wrapper ready

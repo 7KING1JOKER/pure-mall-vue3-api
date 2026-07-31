@@ -144,7 +144,7 @@ echo "[OK] SQL file found: $SQL_FILE"
 echo ""
 echo "[4/4] Importing SQL file..."
 # Convert path for MySQL SOURCE command (must use forward slashes)
-SQL_FILE_FORWARDSLASH="$(echo "$SQL_FILE" | sed 's|\\|/|g' | sed 's|^\([A-Za-z]\):|/\1|')"
+SQL_FILE_FORWARDSLASH="$(echo "$SQL_FILE" | sed 's|\\|/|g' | sed 's|^/\([a-zA-Z]\)/|\1:/|')"
 echo "[INFO] Using SOURCE command to preserve UTF-8 encoding..."
 
 if "$MYSQL_CMD" -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" --default-character-set=utf8mb4 -e "
