@@ -13,7 +13,22 @@ set "DB_HOST=localhost"
 set "DB_PORT=3306"
 set "DB_NAME=pure_mall"
 set "DB_USER=root"
-set "DB_PASS=123456"
+set "DB_PASS="
+
+:: 从 scripts\.env 加载数据库凭据（该文件已被 .gitignore 忽略，参考 .env.example）
+set "ENV_FILE=%SCRIPT_DIR%\.env"
+if exist "%ENV_FILE%" (
+    for /f "usebackq eol=# tokens=1,* delims==" %%a in ("%ENV_FILE%") do set "%%a=%%b"
+)
+
+if not defined DB_PASS goto :no_pass
+if "%DB_PASS%"=="" goto :no_pass
+goto :pass_ok
+:no_pass
+echo [ERROR] 未配置 DB_PASS。
+echo         请复制 scripts\.env.example 为 scripts\.env 并填入数据库密码。
+exit /b 1
+:pass_ok
 set "SQL_FILE=%PROJECT_DIR%\mall_database.sql"
 set "MYSQL_SERVICE=MySQL"
 
@@ -74,7 +89,7 @@ if %errorlevel% neq 0 (
     echo [ERROR] SQL import failed
     echo [INFO] Try running manually in cmd with administrator:
     echo        chcp 65001
-    echo        mysql -u root -p123456 --default-character-set=utf8mb4 pure_mall
+    echo        mysql -u %DB_USER% -p*** --default-character-set=utf8mb4 %DB_NAME%
     echo        SOURCE %SQL_FILE%;
     exit /b 1
 )

@@ -12,7 +12,21 @@ DB_HOST="localhost"
 DB_PORT="3306"
 DB_NAME="pure_mall"
 DB_USER="root"
-DB_PASS="123456"
+DB_PASS=""
+
+# 从 scripts/.env 加载数据库凭据（该文件已被 .gitignore 忽略，参考 .env.example）
+if [ -f "$SCRIPT_DIR/.env" ]; then
+    set -a
+    . "$SCRIPT_DIR/.env"
+    set +a
+fi
+
+if [ -z "$DB_PASS" ]; then
+    echo "[ERROR] 未配置 DB_PASS。"
+    echo "        请复制 scripts/.env.example 为 scripts/.env 并填入数据库密码。"
+    exit 1
+fi
+
 SQL_FILE="$PROJECT_DIR/mall_database.sql"
 
 # ──────────────────────────────────────────────
@@ -117,7 +131,7 @@ else
         echo "        Please start MySQL manually:"
         echo "          Option A: Run CMD as Admin:  net start MySQL"
         echo "          Option B: Start directly:     mysqld --console"
-        echo "        Credentials:  user=$DB_USER  password=$DB_PASS"
+        echo "        Credentials:  user=$DB_USER  password=***"
         exit 1
     fi
 fi

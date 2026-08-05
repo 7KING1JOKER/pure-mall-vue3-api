@@ -1,0 +1,12 @@
+# ============================================================
+# 使用说明：
+# 1. 复制本文件为 application-local.properties（同一目录下）
+# 2. 填入你本地的真实密钥
+# 3. application-local.properties 已被 .gitignore 忽略，不会被提交
+# ============================================================
+
+# MySQL 数据库密码
+spring.datasource.password=your_mysql_password
+
+# JWT 签名密钥（至少 32 字节，建议用随机字符串生成：openssl rand -hex 32）
+jwt.secret=your_jwt_secret_key
