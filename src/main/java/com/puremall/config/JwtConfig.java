@@ -17,11 +17,19 @@ public class JwtConfig {
     @Value("${jwt.expiration}")
     private Long expiration;
 
+    // refresh token 有效期（亮点3）：长于 access token，用于过期续期
+    @Value("${jwt.refresh-expiration}")
+    private Long refreshExpiration;
+
     public String getSecret() {
         return secret;
     }
 
     public Long getExpiration() {
         return expiration;
+    }
+
+    public Long getRefreshExpiration() {
+        return refreshExpiration;
     }
 }

@@ -21,21 +21,48 @@ public class JwtUtils {
     @Autowired
     private JwtConfig jwtConfig;
 
-    // 生成JWT令牌
+    // 生成JWT令牌（access token，短时效）
     public String generateToken(Long userId, String username) {
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + jwtConfig.getExpiration());
-        
+
         // 创建密钥对象
         SecretKeySpec secretKeySpec = new SecretKeySpec(jwtConfig.getSecret().getBytes(), SignatureAlgorithm.HS256.getJcaName());
 
         return Jwts.builder()
                 .setSubject(username)
                 .claim("userId", userId)
+                .claim("type", "access")
                 .setIssuedAt(now)
                 .setExpiration(expirationDate)
                 .signWith(secretKeySpec)
                 .compact();
+    }
+
+    // 生成 refresh token（长时效，仅用于过期续期，不可作为 access token 使用）
+    public String generateRefreshToken(Long userId, String username) {
+        Date now = new Date();
+        Date expirationDate = new Date(now.getTime() + jwtConfig.getRefreshExpiration());
+
+        SecretKeySpec secretKeySpec = new SecretKeySpec(jwtConfig.getSecret().getBytes(), SignatureAlgorithm.HS256.getJcaName());
+
+        return Jwts.builder()
+                .setSubject(username)
+                .claim("userId", userId)
+                .claim("type", "refresh")
+                .setIssuedAt(now)
+                .setExpiration(expirationDate)
+                .signWith(secretKeySpec)
+                .compact();
+    }
+
+    // 获取令牌类型（access / refresh），用于刷新接口校验，防止 access token 被当作 refresh token 使用
+    public String getTokenType(String token) {
+        try {
+            return getClaimsFromToken(token).get("type", String.class);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // 从JWT令牌中获取用户名

@@ -52,9 +52,11 @@ public class UserController {
         Map<String, Object> response = new HashMap<>();
         response.put("user", loggedInUser);
 
-        // 生成JWT token
+        // 生成 JWT access token（短时效）+ refresh token（长时效，亮点3 无感刷新依赖）
         String token = jwtUtils.generateToken(loggedInUser.getId(), loggedInUser.getUsername());
+        String refreshToken = jwtUtils.generateRefreshToken(loggedInUser.getId(), loggedInUser.getUsername());
         response.put("token", token);
+        response.put("refreshToken", refreshToken);
 
         return Response.success(response);
     }

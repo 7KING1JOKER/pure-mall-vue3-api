@@ -29,19 +29,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = getTokenFromRequest(request);
-        
-        if (token != null && jwtUtils.validateToken(token)) {
-            // 解析令牌获取用户信息
-            Long userId = jwtUtils.getUserIdFromToken(token);
-            String username = jwtUtils.getUsernameFromToken(token);
-            
-            UsernamePasswordAuthenticationToken authentication = 
-                    new UsernamePasswordAuthenticationToken(userId, username, null);
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        // 放行 CORS 预检请求（OPTIONS 不携带 Authorization，直接放行避免误判）
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
         }
-        
+
+        String token = getTokenFromRequest(request);
+
+        if (token != null) {
+            if (jwtUtils.validateToken(token)) {
+                // 合法令牌：解析用户信息并写入 SecurityContext
+                Long userId = jwtUtils.getUserIdFromToken(token);
+                String username = jwtUtils.getUsernameFromToken(token);
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userId, username, null);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } else {
+                // 令牌存在但过期/无效 -> 返回 401，触发前端无感刷新（亮点3）
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                // 手动补 CORS 响应头：本过滤器先于 CorsFilter 执行，短路返回时 CorsFilter 不会再补头，
+                // 不补则前端跨域拿不到 401 响应、误判为网络错误。
+                String origin = request.getHeader("Origin");
+                if (origin != null) {
+                    response.setHeader("Access-Control-Allow-Origin", origin);
+                    response.setHeader("Access-Control-Allow-Credentials", "true");
+                }
+                response.getWriter().write("{\"code\":401,\"message\":\"登录已过期，请重新登录\"}");
+                return;
+            }
+        }
+
         filterChain.doFilter(request, response);
     }
     
